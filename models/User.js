@@ -43,7 +43,7 @@ const schema = new mongoose.Schema({
         type: String,
         require: true,
         default: "Anonymous",
-        trim:true,
+        trim: true,
         validate: {
             validator: item => {
                 return item.length <= 20
@@ -99,32 +99,28 @@ const schema = new mongoose.Schema({
     },
 
 },
-    { timestamps: true,
+    {
+        timestamps: true,
         toObject: {
             transform: function (doc, ret) {
-              ret.id=ret._id
-              //delete ret._id;
+                ret.id = ret._id
             }
-          } }
+        }
+    }
 );
 
 schema.method("toJSON", function () {
     const { __v, ...object } = this.toObject();
-    //object.id = _id;
     return object;
 });
 
 schema.index({ fullname: 'text', email: 'text' });
 
 schema.pre('deleteOne', { query: true, document: false }, async function (next) {
-    // 'this' is the client being removed. Provide callbacks here if you want
-    // to be notified of the calls' result.
+
     let id = this.getQuery()['_id'];
-    // await Comment.deleteMany({ userId: id })
-    // await Reading.deleteMany({ userId: id })
-    // await Novel.deleteMany({ nguoidangtruyen: id })
     next();
 });
 
 const User = mongoose.model('User', schema);
-module.exports =  User 
+module.exports = User 
