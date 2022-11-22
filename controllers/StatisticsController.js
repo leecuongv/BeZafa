@@ -1,5 +1,4 @@
-// - Tạo 1 phiên kiểm tra (kiểm tra lại duration với startTime )
-const Exam = require("../models/Exam")
+/*const Exam = require("../models/Exam")
 const mongoose = require("mongoose");
 const Course = require("../models/Course")
 const User = require("../models/User")
@@ -40,11 +39,7 @@ const StatisticController = {
             console.log("------------------------------------------------------------------------------")
             console.log(takeExams)
 
-            /*let results = takeExams.map(item => ({
-                ...item._doc,
-                maxPoints: exam.maxPoints
 
-            }))*/
             return res.status(200).json(takeExams)
         }
         catch (err) {
@@ -297,35 +292,9 @@ const StatisticController = {
             return res.status(500).json( { message: "Không xác định" })
         }
     },
-    /*
-    GetTotalCreateNovelByDay: async (req, res) => {
-        try {
-            let listNovels= await Novel.find()
-            listNovels=listNovels.map(item=>{
-                return {
-                    item,
-                    dateAdd:format(item.createdAt, 'yyyy-MM-dd')
-                }
-            })
-            var result = [];
-            listNovels.reduce(function(res, value) {
-            if (!res[value.dateAdd]) {
-                res[value.dateAdd] = { dateAdd: value.dateAdd, sum: 0 };
-                result.push(res[value.dateAdd])
-            }
-            res[value.dateAdd].sum++;
-            return res;
-            }, {});
 
-            return res.status(200).json(ResponseData(200,result))
-            
-        } catch (error) {
-            console.log(error)
-            res.status(500).json(ResponseDetail(500, { message: "Lỗi GetNovels" }))
-        }
-    },
-    */
 
 }
 
 module.exports = { StatisticController }
+*/

@@ -8,16 +8,9 @@ const {
   UserRoutes, 
   AuthRoutes, 
   SocialRoutes, 
-  CourseRoutes, 
   BillRoutes, 
-  ExamRoutes, 
-  QuestionRoutes, 
-  TakeExamRoutes,
-  QuestionBankRoutes,
   StatisticRoutes,
   UploadRoutes,
-  AssignmentRoutes,
-  SubmitAssignmentRoutes,
   ChatRoutes,
   MessageRoutes,
  } = require('./routers');
@@ -122,15 +115,7 @@ app.use(morgan('combined'))
 app.use('/api/auth', AuthRoutes)
 app.use('/api/user', UserRoutes)
 app.use('/api/social', SocialRoutes)
-app.use('/api/course', CourseRoutes)
 app.use('/api/payment', BillRoutes)
-app.use('/api/exam', ExamRoutes)
-app.use("/api/question", QuestionRoutes)
-app.use("/api/takeexam", TakeExamRoutes)
-app.use("/api/questionbank", QuestionBankRoutes)
-app.use("/api/statistic", StatisticRoutes)
 app.use("/api/upload", UploadRoutes)
-app.use("/api/assignment", AssignmentRoutes)
-app.use("/api/submitassignment", SubmitAssignmentRoutes)
 app.use("/api/chat", ChatRoutes)
 app.use("/api/message", MessageRoutes)
