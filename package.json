@@ -2,6 +2,18 @@
   "name": "back-end",
   "version": "1.0.0",
   "description": "",
+  "builds": [
+    {
+      "src": "index.js",
+      "use": "@now/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "index.js"
+    }
+  ],
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
