@@ -1,8 +1,8 @@
-const AuthRoute = require('./AuthRoute')
-const UserRoute = require('./UserRoute');
+const AuthRoutes = require('./AuthRoutes')
+const UserRoutes = require('./UserRoutes');
 const SocialRoutes = require('./SocialRoutes');
 const CourseRoutes = require('./CourseRoutes');
-const BillRoute = require('./BillRoute');
+const BillRoutes = require('./BillRoutes');
 const ExamRoutes = require("./ExamRoutes");
 const QuestionRoutes = require("./QuestionRoutes")
 const TakeExamRoutes = require("./TakeExamRoutes")
@@ -12,13 +12,16 @@ const UploadRoutes = require("./UploadRoutes")
 const AssignmentRoutes = require("./AssignmentRoutes")
 const SubmitAssignmentRoutes = require("./SubmitAssignmentRoutes")
 const AdminRoutes = require("./AdminRoutes")
+const ChatRoutes = require("./ChatRoutes")
+const MessageRoutes = require("./MessageRoutes")
+
 
 module.exports = { 
-    AuthRoute, 
-    UserRoute, 
+    AuthRoutes, 
+    UserRoutes, 
     SocialRoutes, 
     CourseRoutes, 
-    BillRoute, 
+    BillRoutes, 
     ExamRoutes,
     QuestionRoutes,
     TakeExamRoutes,
@@ -27,5 +30,7 @@ module.exports = {
     UploadRoutes,
     AssignmentRoutes,
     SubmitAssignmentRoutes,
-    AdminRoutes
+    AdminRoutes,
+    ChatRoutes,
+    MessageRoutes,
  }

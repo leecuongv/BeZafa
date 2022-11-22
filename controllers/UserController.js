@@ -11,7 +11,21 @@ cloudinary.config({
 
 const bcrypt = require('bcrypt')
 const { DEFAULT_VALUES, ROLES } = require('../utils/enum')
+
 const UserController = {
+    allUsers: async (req, res) => {
+        const keyword = req.query.search
+            ? {
+                $or: [
+                    { name: { $regex: req.query.search, $options: "i" } },
+                    { email: { $regex: req.query.search, $options: "i" } },
+                ],
+            }
+            : {};
+
+        const users = await User.find(keyword).find({ _id: { $ne: req.user._id } });
+        res.send(users);
+    },
     getInfo: async (req, res) => {
         try {
             const username = req.user.sub
@@ -185,14 +199,14 @@ const UserController = {
             console.log(deleteUser)
             if (deleteUser)
                 return res.status(200).json({ message: "Xoá thành công" })
-            return res.status(400).json({message:"Xoá thất bại"})
+            return res.status(400).json({ message: "Xoá thất bại" })
         }
         catch (error) {
             console.log(error)
-            return res.status(500).json({message: "Lỗi cập nhật quyền tài khoản" })
+            return res.status(500).json({ message: "Lỗi cập nhật quyền tài khoản" })
         }
     },
-   
+
 
 }
 module.exports = { UserController }

@@ -5,11 +5,11 @@ const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const cookieParser = require('cookie-parser');
 const { 
-  UserRoute, 
-  AuthRoute, 
+  UserRoutes, 
+  AuthRoutes, 
   SocialRoutes, 
   CourseRoutes, 
-  BillRoute, 
+  BillRoutes, 
   ExamRoutes, 
   QuestionRoutes, 
   TakeExamRoutes,
@@ -18,6 +18,8 @@ const {
   UploadRoutes,
   AssignmentRoutes,
   SubmitAssignmentRoutes,
+  ChatRoutes,
+  MessageRoutes,
  } = require('./routers');
 const helmet= require("helmet");
 //const passport = require('passport');
@@ -117,11 +119,11 @@ app.get('/', (req, res) => {
 // app.use(passport.initialize());
 // app.use(passport.session());
 app.use(morgan('combined'))
-app.use('/api/auth', AuthRoute)
-app.use('/api/user', UserRoute)
+app.use('/api/auth', AuthRoutes)
+app.use('/api/user', UserRoutes)
 app.use('/api/social', SocialRoutes)
 app.use('/api/course', CourseRoutes)
-app.use('/api/payment', BillRoute)
+app.use('/api/payment', BillRoutes)
 app.use('/api/exam', ExamRoutes)
 app.use("/api/question", QuestionRoutes)
 app.use("/api/takeexam", TakeExamRoutes)
@@ -130,3 +132,5 @@ app.use("/api/statistic", StatisticRoutes)
 app.use("/api/upload", UploadRoutes)
 app.use("/api/assignment", AssignmentRoutes)
 app.use("/api/submitassignment", SubmitAssignmentRoutes)
+app.use("/api/chat", ChatRoutes)
+app.use("/api/message", MessageRoutes)
