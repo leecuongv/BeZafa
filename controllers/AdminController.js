@@ -1,3 +1,4 @@
+/*
 const Exam = require("../models/Exam")
 const mongoose = require("mongoose");
 const Course = require("../models/Course")
@@ -259,5 +260,6 @@ const AdminController = {
 
 
 
-} */
+}
 module.exports = { AdminController }
+*/
