@@ -1,9 +1,6 @@
 const Chat = require("../models/Chat");
 const User = require("../models/User");
 
-//@description     Create or fetch One to One Chat
-//@route           POST /api/chat/
-//@access          Protected
 const ChatController = {
     accessChat: async (req, res) => {
         const { userId } = req.body;
@@ -51,9 +48,6 @@ const ChatController = {
         }
     },
 
-    //@description     Fetch all chats for a user
-    //@route           GET /api/chat/
-    //@access          Protected
     fetchChats: async (req, res) => {
         try {
             Chat.find({ users: { $elemMatch: { $eq: req.user._id } } })
@@ -74,9 +68,6 @@ const ChatController = {
         }
     },
 
-    //@description     Create New Group Chat
-    //@route           POST /api/chat/group
-    //@access          Protected
     createGroupChat: async (req, res) => {
         if (!req.body.users || !req.body.name) {
             return res.status(400).send({ message: "Please Fill all the feilds" });
@@ -111,9 +102,6 @@ const ChatController = {
         }
     },
 
-    // @desc    Rename Group
-    // @route   PUT /api/chat/rename
-    // @access  Protected
     renameGroup: async (req, res) => {
         const { chatId, chatName } = req.body;
 
@@ -137,13 +125,9 @@ const ChatController = {
         }
     },
 
-    // @desc    Remove user from Group
-    // @route   PUT /api/chat/groupremove
-    // @access  Protected
     removeFromGroup: async (req, res) => {
         const { chatId, userId } = req.body;
 
-        // check if the requester is admin
 
         const removed = await Chat.findByIdAndUpdate(
             chatId,
