@@ -1,8 +1,9 @@
 const mongoose = require("mongoose");
+const { COLLECTION } = require("../utils/enum");
 
-const chatModel = mongoose.Schema(
+const chatSchema = mongoose.Schema(
   {
-    chatName: {
+    name: {
       type: String,
       trim: true
     },
@@ -12,20 +13,20 @@ const chatModel = mongoose.Schema(
     },
     users: [{
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User"
+      ref: COLLECTION.USER
     }],
     latestMessage: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Message",
+      ref: COLLECTION.MESSAGE
     },
     groupAdmin: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User"
+      ref: COLLECTION.USER
     },
   },
   { timestamps: true }
 );
 
-const Chat = mongoose.model("Chat", chatModel);
+const Chat = mongoose.model(COLLECTION.CHAT, chatSchema);
 
 module.exports = Chat;
