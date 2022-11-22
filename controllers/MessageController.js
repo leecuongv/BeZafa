@@ -1,5 +1,3 @@
-const asyncHandler = require("express-async-handler");
-const express = require("express")
 const Message = require("../models/Message");
 const User = require("../models/User");
 const Chat = require("../models/Chat");
@@ -10,7 +8,7 @@ const Chat = require("../models/Chat");
 
 const MessageController = {
 
-    allMessages :async (req, res) => {
+    allMessages: async (req, res) => {
         try {
             const messages = await Message.find({ chat: req.params.chatId })
                 .populate("sender", "name pic email")
@@ -25,7 +23,7 @@ const MessageController = {
     //@description     Create New Message
     //@route           POST /api/Message/
     //@access          Protected
-    sendMessage:async (req, res) => {
+    sendMessage: async (req, res) => {
         const { content, chatId } = req.body;
 
         if (!content || !chatId) {
@@ -59,4 +57,4 @@ const MessageController = {
     },
 }
 
-module.exports = { MessageController};
+module.exports = { MessageController };
