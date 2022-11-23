@@ -2,60 +2,60 @@ const Chat = require("../models/Chat");
 const User = require("../models/User");
 
 const ChatController = {
-    accessChat: async (req, res) => {
+    create: async (req, res) => {
+        try {
+            const loginUsername = req.user.sub
+            if (!loginUsername)
+                return res.status(400).json({ message: "Vui lòng đăng nhập!" })
+            const loginUser = await User.findOne({ loginUsername })
+            if (!loginUser)
+                return res.status(400).json({ message: "Không có người dùng!" })
 
-        const username = req.user.sub
-        if (!username)
-            return res.status(400).json({ message: "Không có người dùng" })
-        const user = await User.findOne({ username })
-        if (!user)
-            return res.status(400).json({ message: "Không có người dùng" })
-        //const { userId } = req.body;
-
-        const userId = user.id
-
-        console.log(userId)
-
-        if (!userId) {
-            console.log("UserId param not sent with request");
-            return res.sendStatus(400);
-        }
-
-        var isChat = await Chat.find({
-            isGroupChat: false,
-            $and: [
-                { users: { $elemMatch: { $eq: userId } } },
-                //{ users: { $elemMatch: { $eq: userId } } },
-            ],
-        })
-            .populate("users", "-password")
-            .populate("latestMessage");
-
-        isChat = await User.populate(isChat, {
-            path: "latestMessage.sender",
-            select: "name pic email",
-        });
-
-        if (isChat.length > 0) {
-            res.send(isChat[0]);
-        } else {
-            var chatData = {
-                name: "sender",
+            const { userId } = req.body;
+            const user = await User.findById(userId)
+            if (!user)
+                return res.status(400).json({ message: "Không có người dùng!" })
+            //const userId = user.id
+            var isChat = await Chat.find({
                 isGroupChat: false,
-                users: [req.user._id, userId],
-            };
+                $and: [
+                    { users: { $elemMatch: { $eq: userId } } },
+                    //{ users: { $elemMatch: { $eq: userId } } },
+                ],
+            })
+                .populate("users", "-password")
+                .populate("latestMessage");
 
-            try {
-                const createdChat = await Chat.create(chatData);
-                const FullChat = await Chat.findOne({ _id: createdChat._id }).populate(
-                    "users",
-                    "-password"
-                );
-                res.status(200).json(FullChat);
-            } catch (error) {
-                res.status(400);
-                throw new Error(error.message);
+            isChat = await User.populate(isChat, {
+                path: "latestMessage.sender",
+                select: "name pic email",
+            });
+
+            if (isChat.length > 0) {
+                res.send(isChat[0]);
+            } else {
+                var chatData = {
+                    name: "sender",
+                    isGroupChat: false,
+                    users: [req.user._id, userId],
+                };
+
+                try {
+                    const createdChat = await Chat.create(chatData);
+                    const FullChat = await Chat.findOne({ _id: createdChat._id }).populate(
+                        "users",
+                        "-password"
+                    );
+                    res.status(200).json(FullChat);
+                } catch (error) {
+                    res.status(400);
+                    throw new Error(error.message);
+                }
             }
+        }
+        catch (error) {
+            console.log(error)
+            return res.status(500).json({ message: "Lỗi tìm người dùng!" })
         }
     },
 
@@ -74,15 +74,15 @@ const ChatController = {
                     res.status(200).send(results);
                 });
         } catch (error) {
-            res.status(400);
-            throw new Error(error.message);
+            console.log(error)
+            return res.status(500).json({ message: "Lỗi truy cập vào chat!" })
         }
     },
 
     createGroupChat: async (req, res) => {
 
         if (!req.body.users || !req.body.name) {
-            return res.status(400).send({ message: "Please Fill all the feilds" });
+            return res.status(400).send({ message: "Please Fill all the fields" });
         }
 
         var users = JSON.parse(req.body.users);
@@ -185,6 +185,4 @@ const ChatController = {
         }
     },
 }
-module.exports = {
-    ChatController
-};
+module.exports = { ChatController };

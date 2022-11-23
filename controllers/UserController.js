@@ -18,26 +18,29 @@ const UserController = {
         try {
             const loginUsername = req.user.sub
             if (!loginUsername)
-                return res.status(400).json({ message: "Không có người dùng" })
+                return res.status(400).json({ message: "Vui lòng đăng nhập!" })
             const loginUser = await User.findOne({ loginUsername })
             if (!loginUser)
-                return res.status(400).json({ message: "Không có người dùng" })
+                return res.status(400).json({ message: "Không có người dùng!" })
 
             const keyword = req.query.search
                 ? {
                     $or: [
                         { username: { $regex: req.query.search, $options: "i" } },
+                        { fullname: { $regex: req.query.search, $options: "i" } },
                         { email: { $regex: req.query.search, $options: "i" } },
                     ],
                 }
                 : {};
             const users = await User.find(keyword).find({ _id: { $ne: req.user._id } });
+            if (users.length === 0)
+                return res.status(400).json({ message: "Không tìm thấy người dùng, vui lòng kiểm tra lại!" })
             return res.status(200).json(users);
 
         }
         catch (error) {
             console.log(error)
-            return res.status(500).json({ message: "Lỗi xác thực" })
+            return res.status(500).json({ message: "Lỗi tìm người dùng!" })
         }
 
     },

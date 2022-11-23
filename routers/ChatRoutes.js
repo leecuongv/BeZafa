@@ -3,7 +3,7 @@ const { verifyToken, verifyTokenAdmin } = require("../controllers/middlewareCont
 const {ChatController}= require("../controllers/ChatController")
 const router = express.Router()
 
-router.post("/", verifyToken, ChatController.accessChat)
+router.post("/", verifyToken, ChatController.create)
 router.get("/", verifyToken, ChatController.fetchChats)
 router.post("/group", verifyToken, ChatController.createGroupChat)
 router.put("/rename", verifyToken, ChatController.renameGroup)
