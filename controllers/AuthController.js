@@ -9,25 +9,16 @@ const { generateAccessToken, generateRefreshToken, generateToken } =require("../
 const AuthController = {
     RegisterUser: async (req, res) => {
         try {
-            const {username, password, fullname, email, role} =req.body
-            if(role===ROLES.ADMIN){
-                return res.status(400).json({
-                    message:"Không thể tạo tài khoản"
-                })
-            }
+            const {username, password, fullname, email} =req.body
+           
             const salt = await bcrypt.genSalt(10);
             const hash = await bcrypt.hash(password, salt);
-            if(role !== ROLES.STUDENT && role !== ROLES.TEACHER){
-                return res.status(400).json({
-                    message:"Không thể tạo tài khoản"
-                })
-            }
+           
             const newUser = await new User({
                 fullname: fullname,
                 username: username,
                 password: hash,
                 email: email,
-                role: role,
                 birthday:new Date()
             });
 

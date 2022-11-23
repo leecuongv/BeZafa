@@ -3,7 +3,18 @@ const User = require("../models/User");
 
 const ChatController = {
     accessChat: async (req, res) => {
-        const { userId } = req.body;
+
+        const username = req.user.sub
+        if (!username)
+            return res.status(400).json({ message: "Không có người dùng" })
+        const user = await User.findOne({ username })
+        if (!user)
+            return res.status(400).json({ message: "Không có người dùng" })
+        //const { userId } = req.body;
+
+        const userId = user.id
+
+        console.log(userId)
 
         if (!userId) {
             console.log("UserId param not sent with request");
@@ -13,8 +24,8 @@ const ChatController = {
         var isChat = await Chat.find({
             isGroupChat: false,
             $and: [
-                { users: { $elemMatch: { $eq: req.user._id } } },
                 { users: { $elemMatch: { $eq: userId } } },
+                //{ users: { $elemMatch: { $eq: userId } } },
             ],
         })
             .populate("users", "-password")
@@ -29,7 +40,7 @@ const ChatController = {
             res.send(isChat[0]);
         } else {
             var chatData = {
-                chatName: "sender",
+                name: "sender",
                 isGroupChat: false,
                 users: [req.user._id, userId],
             };
@@ -69,6 +80,7 @@ const ChatController = {
     },
 
     createGroupChat: async (req, res) => {
+
         if (!req.body.users || !req.body.name) {
             return res.status(400).send({ message: "Please Fill all the feilds" });
         }
@@ -85,7 +97,7 @@ const ChatController = {
 
         try {
             const groupChat = await Chat.create({
-                chatName: req.body.name,
+                name: req.body.name,
                 users: users,
                 isGroupChat: true,
                 groupAdmin: req.user,
@@ -103,12 +115,12 @@ const ChatController = {
     },
 
     renameGroup: async (req, res) => {
-        const { chatId, chatName } = req.body;
+        const { chatId, name } = req.body;
 
         const updatedChat = await Chat.findByIdAndUpdate(
             chatId,
             {
-                chatName: chatName,
+                name: name,
             },
             {
                 new: true,
@@ -126,9 +138,8 @@ const ChatController = {
     },
 
     removeFromGroup: async (req, res) => {
+
         const { chatId, userId } = req.body;
-
-
         const removed = await Chat.findByIdAndUpdate(
             chatId,
             {
@@ -149,9 +160,6 @@ const ChatController = {
         }
     },
 
-    // @desc    Add user to Group / Leave
-    // @route   PUT /api/chat/groupadd
-    // @access  Protected
     addToGroup: async (req, res) => {
         const { chatId, userId } = req.body;
 

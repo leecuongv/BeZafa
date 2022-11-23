@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const { DEFAULT_VALUES, STATUS, TYPE_ACCOUNT } = require("../utils/enum");
+const { DEFAULT_VALUES, STATUS, TYPE_ACCOUNT, ROLES } = require("../utils/enum");
 const schema = new mongoose.Schema({
     username: {
         type: String,
@@ -37,7 +37,7 @@ const schema = new mongoose.Schema({
 
         type: String,
         require: true,
-        default: "STUDENT",
+        default: ROLES.USER,
     },
     fullname: {
         type: String,

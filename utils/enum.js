@@ -54,8 +54,7 @@ const STATUS = {
 
 const ROLES = {
   ADMIN: "ADMIN",
-  TEACHER: "TEACHER",
-  STUDENT: "STUDENT",
+  USER: "USER",
 };
 const TYPE_ACCOUNT = {
   NORMAL: "NORMAL",
