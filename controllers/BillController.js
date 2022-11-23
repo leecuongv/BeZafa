@@ -20,7 +20,7 @@ const BillController = {
             const username = req.user.sub
             let partnerCode = "MOMOALSN20220816";
             let accessKey = "u9nAcZb9iznbA05s";
-            let secretkey = "A6pa8FuUSdrbg73MhT37DGKiHbCov12g";
+            let secretKey = "A6pa8FuUSdrbg73MhT37DGKiHbCov12g";
             let requestId = partnerCode + new Date().getTime();
             let orderId = req.body.orderId;
             let orderInfo = "Thanh toán đơn hàng #" + orderId;
@@ -40,7 +40,7 @@ const BillController = {
             console.log(rawSignature)
             //signature
 
-            let signature = crypto.createHmac('sha256', secretkey)
+            let signature = crypto.createHmac('sha256', secretKey)
                 .update(rawSignature)
                 .digest('hex');
             console.log("--------------------SIGNATURE----------------")
@@ -111,7 +111,7 @@ const BillController = {
             let resultCode = req.body.resultCode;
             let partnerCode = "MOMOALSN20220816";
             let accessKey = "u9nAcZb9iznbA05s";
-            let secretkey = "A6pa8FuUSdrbg73MhT37DGKiHbCov12g";
+            let secretKey = "A6pa8FuUSdrbg73MhT37DGKiHbCov12g";
             let orderId = req.body.orderId;
             let extraData = req.body.extraData
             let statusPayment = resultCode === 0 ? "Thành công" : "Thất bại"
