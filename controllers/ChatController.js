@@ -11,7 +11,7 @@ const ChatController = {
             if (!loginUser)
                 return res.status(400).json({ message: "Không có người dùng!" })
 
-            const { userId } = req.body;
+            const userId = req.body;
             const user = await User.findById(userId)
             if (!user)
                 return res.status(400).json({ message: "Không có người dùng!" })
@@ -61,6 +61,7 @@ const ChatController = {
 
     fetchChats: async (req, res) => {
         try {
+
             Chat.find({ users: { $elemMatch: { $eq: req.user._id } } })
                 .populate("users", "-password")
                 .populate("groupAdmin", "-password")
@@ -80,27 +81,32 @@ const ChatController = {
     },
 
     createGroupChat: async (req, res) => {
-
-        if (!req.body.users || !req.body.name) {
-            return res.status(400).send({ message: "Please Fill all the fields" });
-        }
-
-        var users = JSON.parse(req.body.users);
-
-        if (users.length < 2) {
-            return res
-                .status(400)
-                .send("More than 2 users are required to form a group chat");
-        }
-
-        users.push(req.user);
-
         try {
+            const loginUsername = req.user.sub
+            if (!loginUsername)
+                return res.status(400).json({ message: "Vui lòng đăng nhập!" })
+            const loginUser = await User.findOne({ loginUsername })
+            if (!loginUser)
+                return res.status(400).json({ message: "Không có người dùng!" })
+            console.log(loginUser)
+            
+                const {users, name} = req.body
+
+            if (users.length < 2) {
+                return res
+                    .status(400)
+                    .send("More than 2 users are required to form a group chat");
+            }
+
+            users.push(loginUser.id);
+
+            console.log(users)
+
             const groupChat = await Chat.create({
-                name: req.body.name,
+                name:name,
                 users: users,
                 isGroupChat: true,
-                groupAdmin: req.user,
+                groupAdmin: loginUser.id,
             });
 
             const fullGroupChat = await Chat.findOne({ _id: groupChat._id })
