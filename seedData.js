@@ -19,10 +19,8 @@ mongoose.connect(URI)
     .then(async () => {
         const adminRole = new Role({ name: "ADMIN" })
         const userRole = new Role({ name: "USER" })
-        const teacherRole = new Role({ name: "TEACHER" })
         const admin = await adminRole.save()
         await userRole.save()
-        await teacherRole.save()
         //const roles = await Role.find({ name: ROLES.ADMIN });
         const salt = await bcrypt.genSalt(10);
         const hash = await bcrypt.hash("12345678", salt);

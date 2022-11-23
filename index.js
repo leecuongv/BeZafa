@@ -4,17 +4,17 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const cookieParser = require('cookie-parser');
-const { 
-  UserRoutes, 
-  AuthRoutes, 
-  SocialRoutes, 
-  BillRoutes, 
+const {
+  UserRoutes,
+  AuthRoutes,
+  SocialRoutes,
+  BillRoutes,
   StatisticRoutes,
   UploadRoutes,
   ChatRoutes,
   MessageRoutes,
- } = require('./routers');
-const helmet= require("helmet");
+} = require('./routers');
+const helmet = require("helmet");
 //const passport = require('passport');
 const rateLimit = require('express-rate-limit');
 //const session = require('express-session');
@@ -94,14 +94,14 @@ app.use(function (req, res, next) {
 });
 
 mongoose.connect(URI)
-  .then(async() => {
+  .then(async () => {
     console.log('Connected')
   }).catch(err => {
     console.log('err', err)
   })
 
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT} `)
 })
 app.get('/', (req, res) => {
@@ -119,3 +119,45 @@ app.use('/api/payment', BillRoutes)
 app.use("/api/upload", UploadRoutes)
 app.use("/api/chat", ChatRoutes)
 app.use("/api/message", MessageRoutes)
+
+
+
+const io = require("socket.io")(server, {
+  pingTimeout: 60000,
+  cors: {
+    origin: "http://localhost:3000",
+    // credentials: true,
+  },
+});
+
+io.on("connection", (socket) => {
+  console.log("Connected to socket.io");
+  socket.on("setup", (userData) => {
+    socket.join(userData._id);
+    socket.emit("connected");
+  });
+
+  socket.on("join chat", (room) => {
+    socket.join(room);
+    console.log("User Joined Room: " + room);
+  });
+  socket.on("typing", (room) => socket.in(room).emit("typing"));
+  socket.on("stop typing", (room) => socket.in(room).emit("stop typing"));
+
+  socket.on("new message", (newMessageRecieved) => {
+    var chat = newMessageRecieved.chat;
+
+    if (!chat.users) return console.log("chat.users not defined");
+
+    chat.users.forEach((user) => {
+      if (user._id == newMessageRecieved.sender._id) return;
+
+      socket.in(user._id).emit("message recieved", newMessageRecieved);
+    });
+  });
+
+  socket.off("setup", () => {
+    console.log("USER DISCONNECTED");
+    socket.leave(userData._id);
+  });
+});

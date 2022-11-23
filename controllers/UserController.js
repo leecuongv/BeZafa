@@ -13,19 +13,35 @@ const bcrypt = require('bcrypt')
 const { DEFAULT_VALUES, ROLES } = require('../utils/enum')
 
 const UserController = {
-    allUsers: async (req, res) => {
-        const keyword = req.query.search
-            ? {
-                $or: [
-                    { name: { $regex: req.query.search, $options: "i" } },
-                    { email: { $regex: req.query.search, $options: "i" } },
-                ],
-            }
-            : {};
 
-        const users = await User.find(keyword).find({ _id: { $ne: req.user._id } });
-        res.send(users);
+    searchAllUsers: async (req, res) => {
+        try {
+            const loginUsername = req.user.sub
+            if (!loginUsername)
+                return res.status(400).json({ message: "Không có người dùng" })
+            const loginUser = await User.findOne({ loginUsername })
+            if (!loginUser)
+                return res.status(400).json({ message: "Không có người dùng" })
+
+            const keyword = req.query.search
+                ? {
+                    $or: [
+                        { username: { $regex: req.query.search, $options: "i" } },
+                        { email: { $regex: req.query.search, $options: "i" } },
+                    ],
+                }
+                : {};
+            const users = await User.find(keyword).find({ _id: { $ne: req.user._id } });
+            return res.status(200).json(users);
+
+        }
+        catch (error) {
+            console.log(error)
+            return res.status(500).json({ message: "Lỗi xác thực" })
+        }
+
     },
+
     getInfo: async (req, res) => {
         try {
             const username = req.user.sub
@@ -174,7 +190,7 @@ const UserController = {
     updateRoles: async (req, res) => {
         try {
             const username = req.user.sub
-            const user = await User.findOneAndUpdate({ username }, { role: ROLES.TEACHER }, { new: true })
+            const user = await User.findOneAndUpdate({ username }, { role: ROLES.ADMIN }, { new: true })
             if (user) {
                 const { password, type, id, status, ...rest } = user._doc;
                 return res.status(200).json({

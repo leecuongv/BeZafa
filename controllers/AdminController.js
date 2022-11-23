@@ -7,15 +7,6 @@ const AdminController = {
 
     activeUserByAdmin: async (req, res) => {
         try {
-            const admin = req.user.sub
-            if (!admin)
-                return res.status(400).json({
-                    message: "Không tồn tại tài khoản"
-                })
-            if (admin.role !== ROLES.ADMIN)
-                return res.status(400).json({
-                    message: "Không có quyền truy cập"
-                })
             const userId = req.body.userId;
             const updateUser = await User.findByIdAndUpdate(userId, { active: true }, { new: true })
 
@@ -31,15 +22,6 @@ const AdminController = {
 
     inactiveUserByAdmin: async (req, res) => {
         try {
-            const admin = req.user.sub
-            if (!admin)
-                return res.status(400).json({
-                    message: "Không tồn tại tài khoản"
-                })
-            if (admin.role !== ROLES.ADMIN)
-                return res.status(400).json({
-                    message: "Không có quyền truy cập"
-                })
             const userId = req.body.userId;
             const updateUser = await User.findByIdAndUpdate(userId, { active: false }, { new: true })
             if (updateUser)
@@ -54,15 +36,6 @@ const AdminController = {
 
     updateUserRole: async (req, res) => {
         try {
-            const admin = req.user.sub
-            if (!admin)
-                return res.status(400).json({
-                    message: "Không tồn tại tài khoản"
-                })
-            if (admin.role !== ROLES.ADMIN)
-                return res.status(400).json({
-                    message: "Không có quyền truy cập"
-                })
             const rolesRequest = req.body.roles;
             const username = req.body.username;
             let roles = []
@@ -93,15 +66,6 @@ const AdminController = {
 
     deleteUserById: async (req, res) => {
         try {
-            const admin = req.user.sub
-            if (!admin)
-                return res.status(400).json({
-                    message: "Không tồn tại tài khoản"
-                })
-            if (admin.role !== ROLES.ADMIN)
-                return res.status(400).json({
-                    message: "Không có quyền truy cập"
-                })
             const userId = req.query.id;
             const user = await User.findById(userId)
             if (!user)
@@ -126,15 +90,6 @@ const AdminController = {
 
     GetListUser: (req, res) => {
         try {
-            const admin = req.user.sub
-            if (!admin)
-                return res.status(400).json({
-                    message: "Không tồn tại tài khoản"
-                })
-            if (admin.role !== ROLES.ADMIN)
-                return res.status(400).json({
-                    message: "Không có quyền truy cập"
-                })
             User.find().sort({ fullname: -1 })
                 .then(result => {
                     res.status(200).json(ResponseData(200, result))
