@@ -1,12 +1,7 @@
-/*
-const Exam = require("../models/Exam")
 const mongoose = require("mongoose");
-const Course = require("../models/Course")
 const User = require("../models/User")
-const TakeExam = require("../models/TakeExam");
 const { STATUS, VIEWPOINT, ROLES } = require("../utils/enum");
 const moment = require("moment/moment");
-const ExamResult = require("../models/ExamResult");
 
 const AdminController = {
 
@@ -153,69 +148,11 @@ const AdminController = {
             res.status(400).json({ message: "Lỗi lấy danh sách người dùng" })
         }
     },
-
-    deleteCourseById: async (req, res) => {
-        try {
-            const admin = req.user.sub
-            if (!admin)
-                return res.status(400).json({
-                    message: "Không tồn tại tài khoản"
-                })
-            if (admin.role !== ROLES.ADMIN)
-                return res.status(400).json({
-                    message: "Không có quyền truy cập"
-                })
-            const courseId = req.query.id
-            const course = await Course.findById(courseId)
-            if (!course)
-                return res.status(400).json({
-                    message: "Không tồn tại khóa học!"
-                })
-            let courseName = course.name
-            let deleteCourse = Course.findByIdAndDelete(courseId)
-            if (deleteCourse)
-                return res.status(200).json({
-                    message: "Xóa khóa học " + courseName + " thành công!"
-                })
-            return res.status(200).json({
-                message: "Xóa khóa học " + courseName + " thất bại!"
-            })
-        }
-        catch (error) {
-            res.status(400).json({ message: "Lỗi xóa khóa học" })
-        }
-    },
-
-    GetListCourse: (req, res) => {
-        try {
-            const admin = req.user.sub
-            if (!admin)
-                return res.status(400).json({
-                    message: "Không tồn tại tài khoản"
-                })
-            if (admin.role !== ROLES.ADMIN)
-                return res.status(400).json({
-                    message: "Không có quyền truy cập"
-                })
-            Course.find().sort({ name: -1 })
-                .then(result => {
-                    res.status(200).json( result)
-                }).
-                catch(err => {
-                    console.log(err)
-                    res.status(500).json({ message: "Lấy danh sách khóa học thất bại" })
-                })
-        } catch (error) {
-            console.log(error)
-            res.status(500).json({ message: "Lỗi lấy danh sách khóa học!" })
-        }
-    },
-
 }
 
 
-/*
-   
+
+   /*
     GetBills: async (req, res) => {
         try{
             let listPayments= await Bill.find().populate('userId').populate('orderId')
@@ -260,6 +197,5 @@ const AdminController = {
 
 
 
-}
+}*/
 module.exports = { AdminController }
-*/
