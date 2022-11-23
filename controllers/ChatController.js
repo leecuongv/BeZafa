@@ -11,11 +11,10 @@ const ChatController = {
             if (!loginUser)
                 return res.status(400).json({ message: "Không có người dùng!" })
 
-            const { userId } = req.body;
+            const userId = req.body;
             const user = await User.findById(userId)
             if (!user)
                 return res.status(400).json({ message: "Không có người dùng!" })
-            //const userId = user.id
             var isChat = await Chat.find({
                 isGroupChat: false,
                 $and: [
@@ -61,6 +60,7 @@ const ChatController = {
 
     fetchChats: async (req, res) => {
         try {
+
             Chat.find({ users: { $elemMatch: { $eq: req.user._id } } })
                 .populate("users", "-password")
                 .populate("groupAdmin", "-password")
@@ -80,27 +80,32 @@ const ChatController = {
     },
 
     createGroupChat: async (req, res) => {
-
-        if (!req.body.users || !req.body.name) {
-            return res.status(400).send({ message: "Please Fill all the fields" });
-        }
-
-        var users = JSON.parse(req.body.users);
-
-        if (users.length < 2) {
-            return res
-                .status(400)
-                .send("More than 2 users are required to form a group chat");
-        }
-
-        users.push(req.user);
-
         try {
+            const loginUsername = req.user.sub
+            if (!loginUsername)
+                return res.status(400).json({ message: "Vui lòng đăng nhập!" })
+            const loginUser = await User.findOne({ loginUsername })
+            if (!loginUser)
+                return res.status(400).json({ message: "Không có người dùng!" })
+            console.log(loginUser)
+
+            const { users, name } = req.body
+
+            if (users.length < 2) {
+                return res
+                    .status(400)
+                    .send("More than 2 users are required to form a group chat");
+            }
+
+            users.push(loginUser.id);
+
+            console.log(users)
+
             const groupChat = await Chat.create({
-                name: req.body.name,
+                name: name,
                 users: users,
                 isGroupChat: true,
-                groupAdmin: req.user,
+                groupAdmin: loginUser.id,
             });
 
             const fullGroupChat = await Chat.findOne({ _id: groupChat._id })
@@ -115,25 +120,43 @@ const ChatController = {
     },
 
     renameGroup: async (req, res) => {
-        const { chatId, name } = req.body;
+        try {
+            const loginUsername = req.user.sub
+            if (!loginUsername)
+                return res.status(400).json({ message: "Vui lòng đăng nhập!" })
+            const loginUser = await User.findOne({ loginUsername })
+            if (!loginUser)
+                return res.status(400).json({ message: "Không có người dùng!" })
 
-        const updatedChat = await Chat.findByIdAndUpdate(
-            chatId,
-            {
-                name: name,
-            },
-            {
-                new: true,
+            const { chatId, name } = req.body;
+
+            const updatedChat = await Chat.findByIdAndUpdate(
+                chatId,
+                {
+                    name: name,
+                },
+                {
+                    new: true,
+                }
+            )
+                .populate("users", "-password")
+                .populate("groupAdmin", "-password");
+            if (!updatedChat) {
+                res.status(400).json({
+                    message: "Không tìm thấy group chat!"
+                })
             }
-        )
-            .populate("users", "-password")
-            .populate("groupAdmin", "-password");
-
-        if (!updatedChat) {
-            res.status(404);
-            throw new Error("Chat Not Found");
-        } else {
-            res.json(updatedChat);
+            if (updatedChat.groupAdmin.id !== loginUser.id)
+                return res.status(400).json({
+                    message: "Chỉ quản trị viên mới có quyền đổi tên group chat!"
+                })
+            return res.status(200).json({
+                updatedChat
+            })
+        }
+        catch (error) {
+            console.log(error)
+            return res.status(500).json({ message: "Lỗi truy cập vào chat!" })
         }
     },
 
