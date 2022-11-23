@@ -7,11 +7,9 @@ const generator =require("generate-password");
 const { ROLES, STATUS, TYPE_ACCOUNT } =require("../utils/enum");
 const { generateAccessToken, generateRefreshToken, generateToken } =require("../services/jwtService");
 const AuthController = {
-    
-
     RegisterUser: async (req, res) => {
         try {
-            const {username, password, fullname, email,role} =req.body
+            const {username, password, fullname, email, role} =req.body
             if(role===ROLES.ADMIN){
                 return res.status(400).json({
                     message:"Không thể tạo tài khoản"

@@ -9,21 +9,12 @@ const DEFAULT_VALUES = {
 };
 
 const COLLECTION = {
-  ANSWER: "Answer",
   BILL: "Bill",
-  COURSE: "Course",
-  QUESTION: "Question",
-  TAKEEXAM: "Take_exam",
-  EXAMRESULT: "Exam_result",
-  EXAM: "Exam",
   USER: "User",
-  QUESTIONBANK: "Question_bank",
   LOG: "Logs",
-  ASSIGNMENT: "Assignment",
-  SUBMITASSIGNMENT: "Submit_assignment",
   CHAT: "Chats",
   MESSAGE: "Messages",
-  
+  FILE: "File"
 };
 
 const TYPEOFPOINT = {
@@ -43,7 +34,7 @@ const VIEWANSWER = {
 }
 
 const STATUS = {
-  DEACTIVE: 'deactive',
+  INACTIVE: 'inactive',
   DELETED: 'deleted',
   OK: 'ok',
   ARCHIVED: 'archived',
