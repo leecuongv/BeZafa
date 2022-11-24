@@ -7,7 +7,7 @@ router.post("/", verifyToken, ChatController.create)
 router.get("/", verifyToken, ChatController.fetchChats)
 router.post("/group", verifyToken, ChatController.createGroupChat)
 router.put("/rename", verifyToken, ChatController.renameGroup)
-router.put("/remove-from-group", verifyToken, ChatController.removeFromGroup)
-router.put("/add-to-group", verifyToken, ChatController.addToGroup)
+router.put("/remove-user-from-group", verifyToken, ChatController.removeUserFromGroup)
+router.put("/add-user-to-group", verifyToken, ChatController.addUserToGroup)
 
 module.exports = router;
