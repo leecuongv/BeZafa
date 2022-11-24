@@ -6,30 +6,40 @@ const MessageController = {
 
     allMessages: async (req, res) => {
         try {
+            const loginUsername = req.user.sub
+            if (!loginUsername)
+                return res.status(400).json({ message: "Vui lòng đăng nhập!" })
+            const loginUser = await User.findOne({ loginUsername })
+            if (!loginUser)
+                return res.status(400).json({ message: "Không có người dùng!" })
+
             const messages = await Message.find({ chat: req.params.chatId })
                 .populate("sender", "name pic email")
                 .populate("chat");
-            res.json(messages);
+            //res.json(messages);
+            if (!messages)
+                return res.status(400).json({ message: "Không tìm thấy tin nhắn!" })
+            return res.status(200).json(messages)
         } catch (error) {
-            res.status(400);
-            throw new Error(error.message);
+            return res.status(400).json({ message: "Lỗi tìm tin nhắn!" })
         }
     },
+
     sendMessage: async (req, res) => {
-        const { content, chatId } = req.body;
-
-        if (!content || !chatId) {
-            console.log("Invalid data passed into request");
-            return res.sendStatus(400);
-        }
-
-        var newMessage = {
-            sender: req.user._id,
-            content: content,
-            chat: chatId,
-        };
-
         try {
+            const loginUsername = req.user.sub
+            if (!loginUsername)
+                return res.status(400).json({ message: "Vui lòng đăng nhập!" })
+            const loginUser = await User.findOne({ loginUsername })
+            if (!loginUser)
+                return res.status(400).json({ message: "Không có người dùng!" })
+            const { content, chatId } = req.body;
+
+            var newMessage = {
+                sender: req.user._id,
+                content: content,
+                chat: chatId,
+            };
             var message = await Message.create(newMessage);
 
             message = await message.populate("sender", "name pic").execPopulate();
@@ -39,12 +49,14 @@ const MessageController = {
                 select: "name pic email",
             });
 
-            await Chat.findByIdAndUpdate(req.body.chatId, { latestMessage: message });
+            const newChat = await Chat.findByIdAndUpdate(req.body.chatId, { latestMessage: message });
 
-            res.json(message);
-        } catch (error) {
-            res.status(400);
-            throw new Error(error.message);
+            if (!newChat)
+                return res.status(400).json({ message: "Gửi tin nhắn thất bại!" })
+            return res.status(400).json(newChat)
+        }
+        catch (error) {
+            return res.status(400).json({ message: "Lỗi gửi tin nhắn!" })
         }
     },
 }
