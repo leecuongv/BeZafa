@@ -175,8 +175,18 @@ const ChatController = {
 
             if (!user)
                 return res.status(400).json({ message: "Không có người dùng!" })
-
-            const removed = await Chat.findByIdAndUpdate(
+            let chat = await Chat.findById(chatId)
+            if (!chat)
+                return res.status(400).json({ message: "Không tìm thấy đoạn chat!" })
+            if (chat.users.find(item => item.toString() === user.id.toString())) {
+                //chat.users.push(user.id)
+                //course.students = course.students.filter(item => item.toString() !== student.id.toString())
+                chat.users = chat.users.filter(item=>item.toString()!==user.id.toString())
+            }
+            else {
+                return res.status(400).json({ message: "Thành viên không thuộc đoạn chat!" })
+            }
+            /*const removed = await Chat.findByIdAndUpdate(
                 chatId,
                 {
                     $pull: { users: userId },
@@ -187,7 +197,8 @@ const ChatController = {
             )
                 .populate("users", "-password")
                 .populate("groupAdmin", "-password");
-
+            */
+            const removed = await chat.save()
             if (!removed) {
                 res.status(404).json({ message: "Không tìm thấy đoạn chat" });
             }
@@ -216,14 +227,8 @@ const ChatController = {
             let chat = await Chat.findById(chatId)
             if (!chat)
                 return res.status(400).json({ message: "Không tìm thấy đoạn chat!" })
-            /*if (!course.students.find(item => item.toString() === student.id.toString())) {//nếu chưa có sinh viên trên
-                course.students.push(student.id)
-            }
-            else {
-                return res.status(400).json({ message: "Học viên đã thuộc lớp học." })
-            }*/
-            if (!chat.users.find(item => item.toString() === userId.toString())) {
-                chat.users.push(userId)
+            if (!chat.users.find(item => item.toString() === user.id.toString())) {
+                chat.users.push(user.id)
             }
             else {
                 return res.status(400).json({ message: "Thành viên đã thuộc đoạn chat!" })
@@ -239,9 +244,9 @@ const ChatController = {
             // )
             //     .populate("users", "-password")
             //     .populate("groupAdmin", "-password");
-            const added = chat.save()
-                .populate("users", "-password")
-                .populate("groupAdmin", "-password");
+            const added = await chat.save()
+            //.populate("users", "-password")
+            //.populate("groupAdmin", "-password");
             if (!added) {
                 return res.status(400).json({ message: "Thêm thành viên thất bại!" })
             }
