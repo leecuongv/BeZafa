@@ -9,7 +9,7 @@ const MessageController = {
             const loginUsername = req.user.sub
             if (!loginUsername)
                 return res.status(400).json({ message: "Vui lòng đăng nhập!" })
-            const loginUser = await User.findOne({ loginUsername })
+            const loginUser = await User.findOne({ username: loginUsername })
             if (!loginUser)
                 return res.status(400).json({ message: "Không có người dùng!" })
 
@@ -27,23 +27,28 @@ const MessageController = {
 
     sendMessage: async (req, res) => {
         try {
-            const loginUsername = req.user.sub
+            let loginUsername = req.user?.sub
+            console.log(loginUsername)
             if (!loginUsername)
                 return res.status(400).json({ message: "Vui lòng đăng nhập!" })
-            const loginUser = await User.findOne({ loginUsername })
-            if (!loginUser)
+            let loginUser = await User.findOne({ username: loginUsername })
+            console.log(loginUser)
+            if (!loginUsername)
                 return res.status(400).json({ message: "Không có người dùng!" })
             const { content, chatId } = req.body;
-
+            
+            let chat = await Chat.findById(chatId)
+            if (!chat)
+                return res.status(400).json({ message: "Không tìm thấy đoạn chat!" })
             var newMessage = {
-                sender: req.user._id,
+                sender: loginUser.id,
                 content: content,
                 chat: chatId,
             };
-            var message = await Message.create(newMessage);
+            let message = await Message.create(newMessage);
+            console.log(message)
 
-            message = await message.populate("sender", "name pic").execPopulate();
-            message = await message.populate("chat").execPopulate();
+            message = await message.populate([{ path: 'sender', select: 'name pic' }, { path: 'chat' }])
             message = await User.populate(message, {
                 path: "chat.users",
                 select: "name pic email",
@@ -53,9 +58,10 @@ const MessageController = {
 
             if (!newChat)
                 return res.status(400).json({ message: "Gửi tin nhắn thất bại!" })
-            return res.status(400).json(newChat)
+            return res.status(200).json(newChat)
         }
         catch (error) {
+            console.log(error)
             return res.status(400).json({ message: "Lỗi gửi tin nhắn!" })
         }
     },

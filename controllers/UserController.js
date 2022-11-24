@@ -19,7 +19,7 @@ const UserController = {
             const loginUsername = req.user.sub
             if (!loginUsername)
                 return res.status(400).json({ message: "Vui lòng đăng nhập!" })
-            const loginUser = await User.findOne({ loginUsername })
+            const loginUser = await User.findOne({ username: loginUsername })
             if (!loginUser)
                 return res.status(400).json({ message: "Không có người dùng!" })
 

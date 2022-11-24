@@ -5,12 +5,14 @@ const User = require("../models/User");
 const ChatController = {
     create: async (req, res) => {
         try {
-            const loginUsername = req.user.sub
+            const loginUsername = req.user?.sub
             if (!loginUsername)
                 return res.status(400).json({ message: "Vui lòng đăng nhập!" })
-            const loginUser = await User.findOne({ loginUsername })
+            const loginUser = await User.findOne({ username: loginUsername })
             if (!loginUser)
                 return res.status(400).json({ message: "Không có người dùng!" })
+
+            console.log(loginUsername)
 
             const userId = req.body;
             const user = await User.findById(userId)
@@ -82,10 +84,10 @@ const ChatController = {
 
     createGroupChat: async (req, res) => {
         try {
-            const loginUsername = req.user.sub
+            const loginUsername = req.user?.sub
             if (!loginUsername)
                 return res.status(400).json({ message: "Vui lòng đăng nhập!" })
-            const loginUser = await User.findOne({ loginUsername })
+            const loginUser = await User.findOne({ username: loginUsername })
             if (!loginUser)
                 return res.status(400).json({ message: "Không có người dùng!" })
             console.log(loginUser)
@@ -125,7 +127,7 @@ const ChatController = {
             const loginUsername = req.user.sub
             if (!loginUsername)
                 return res.status(400).json({ message: "Vui lòng đăng nhập!" })
-            const loginUser = await User.findOne({ loginUsername })
+            const loginUser = await User.findOne({ username: loginUsername })
             if (!loginUser)
                 return res.status(400).json({ message: "Không có người dùng!" })
 
@@ -166,7 +168,7 @@ const ChatController = {
             const loginUsername = req.user.sub
             if (!loginUsername)
                 return res.status(400).json({ message: "Vui lòng đăng nhập!" })
-            const loginUser = await User.findOne({ loginUsername })
+            const loginUser = await User.findOne({ username: loginUsername })
             if (!loginUser)
                 return res.status(400).json({ message: "Lỗi đăng nhập!" })
 
@@ -179,8 +181,6 @@ const ChatController = {
             if (!chat)
                 return res.status(400).json({ message: "Không tìm thấy đoạn chat!" })
             if (chat.users.find(item => item.toString() === user.id.toString())) {
-                //chat.users.push(user.id)
-                //course.students = course.students.filter(item => item.toString() !== student.id.toString())
                 chat.users = chat.users.filter(item=>item.toString()!==user.id.toString())
             }
             else {
@@ -203,7 +203,6 @@ const ChatController = {
                 res.status(404).json({ message: "Không tìm thấy đoạn chat" });
             }
             return res.status(200).json({ removed })
-
         }
         catch (error) {
             console.log(error)
@@ -216,7 +215,7 @@ const ChatController = {
             const loginUsername = req.user.sub
             if (!loginUsername)
                 return res.status(400).json({ message: "Vui lòng đăng nhập!" })
-            const loginUser = await User.findOne({ loginUsername })
+            const loginUser = await User.findOne({ username: loginUsername })
             if (!loginUser)
                 return res.status(400).json({ message: "Lỗi đăng nhập!" })
 
@@ -245,12 +244,9 @@ const ChatController = {
             //     .populate("users", "-password")
             //     .populate("groupAdmin", "-password");
             const added = await chat.save()
-            //.populate("users", "-password")
-            //.populate("groupAdmin", "-password");
             if (!added) {
                 return res.status(400).json({ message: "Thêm thành viên thất bại!" })
             }
-            //res.json(added);
             return res.status(200).json(added)
 
         } catch (error) {

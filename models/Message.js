@@ -20,7 +20,10 @@ const messageSchema = mongoose.Schema(
             ref: COLLECTION.USER
         }],
     },
-    { timestamps: true }
+    {
+        timestamps: true,
+        toJSON: { virtuals: true }
+    }
 );
 
 const Message = mongoose.model(COLLECTION.MESSAGE, messageSchema);
