@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const { DEFAULT_VALUES, STATUS, TYPE_ACCOUNT, ROLES } = require("../utils/enum");
+const { DEFAULT_VALUES, STATUS, TYPE_ACCOUNT, ROLES, COLLECTION } = require("../utils/enum");
 const schema = new mongoose.Schema({
     username: {
         type: String,
@@ -122,5 +122,5 @@ schema.pre('deleteOne', { query: true, document: false }, async function (next) 
     next();
 });
 
-const User = mongoose.model('User', schema);
+const User = mongoose.model(COLLECTION.USER, schema);
 module.exports = User 

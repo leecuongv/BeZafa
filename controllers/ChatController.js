@@ -1,4 +1,5 @@
 const Chat = require("../models/Chat");
+
 const User = require("../models/User");
 
 const ChatController = {
@@ -161,50 +162,78 @@ const ChatController = {
     },
 
     removeFromGroup: async (req, res) => {
+        try {
+            const loginUsername = req.user.sub
+            if (!loginUsername)
+                return res.status(400).json({ message: "Vui lòng đăng nhập!" })
+            const loginUser = await User.findOne({ loginUsername })
+            if (!loginUser)
+                return res.status(400).json({ message: "Lỗi đăng nhập!" })
 
-        const { chatId, userId } = req.body;
-        const removed = await Chat.findByIdAndUpdate(
-            chatId,
-            {
-                $pull: { users: userId },
-            },
-            {
-                new: true,
+            const { chatId, userId } = req.body;
+            const user = await User.findById(userId)
+            
+            if (!user)
+                return res.status(400).json({ message: "Không có người dùng!" })
+
+            const removed = await Chat.findByIdAndUpdate(
+                chatId,
+                {
+                    $pull: { users: userId },
+                },
+                {
+                    new: true,
+                }
+            )
+                .populate("users", "-password")
+                .populate("groupAdmin", "-password");
+
+            if (!removed) {
+                res.status(404).json({ message: "Không tìm thấy đoạn chat" });
             }
-        )
-            .populate("users", "-password")
-            .populate("groupAdmin", "-password");
+            return res.status(200).json({ removed })
 
-        if (!removed) {
-            res.status(404);
-            throw new Error("Chat Not Found");
-        } else {
-            res.json(removed);
+        }
+        catch (error) {
+            console.log(error)
+            return res.status(500).json({ message: "Lỗi truy cập vào chat!" })
         }
     },
 
     addToGroup: async (req, res) => {
-        const { chatId, userId } = req.body;
+        try {
+            const loginUsername = req.user.sub
+            if (!loginUsername)
+                return res.status(400).json({ message: "Vui lòng đăng nhập!" })
+            const loginUser = await User.findOne({ loginUsername })
+            if (!loginUser)
+                return res.status(400).json({ message: "Lỗi đăng nhập!" })
 
-        // check if the requester is admin
+            const { chatId, userId } = req.body;
+            const user = await User.findById(userId)
+            if (!user)
+                return res.status(400).json({ message: "Không có người dùng!" })
+            const added = await Chat.findByIdAndUpdate(
+                chatId,
+                {
+                    $push: { users: userId },
+                },
+                {
+                    new: true,
+                }
+            )
+                .populate("users", "-password")
+                .populate("groupAdmin", "-password");
 
-        const added = await Chat.findByIdAndUpdate(
-            chatId,
-            {
-                $push: { users: userId },
-            },
-            {
-                new: true,
+            if (!added) {
+                res.status(404);
+                throw new Error("Không tìm thấy đoạn chat");
+            } else {
+                res.json(added);
             }
-        )
-            .populate("users", "-password")
-            .populate("groupAdmin", "-password");
-
-        if (!added) {
-            res.status(404);
-            throw new Error("Chat Not Found");
-        } else {
-            res.json(added);
+        } catch (error) {
+            console.log(error)
+            return res.status(500).json({ message: "Lỗi truy cập vào chat!" })
         }
     },
 }
