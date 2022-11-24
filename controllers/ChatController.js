@@ -161,7 +161,7 @@ const ChatController = {
         }
     },
 
-    removeFromGroup: async (req, res) => {
+    removeUserFromGroup: async (req, res) => {
         try {
             const loginUsername = req.user.sub
             if (!loginUsername)
@@ -172,7 +172,7 @@ const ChatController = {
 
             const { chatId, userId } = req.body;
             const user = await User.findById(userId)
-            
+
             if (!user)
                 return res.status(400).json({ message: "Không có người dùng!" })
 
@@ -200,7 +200,7 @@ const ChatController = {
         }
     },
 
-    addToGroup: async (req, res) => {
+    addUserToGroup: async (req, res) => {
         try {
             const loginUsername = req.user.sub
             if (!loginUsername)
@@ -213,27 +213,44 @@ const ChatController = {
             const user = await User.findById(userId)
             if (!user)
                 return res.status(400).json({ message: "Không có người dùng!" })
-            const added = await Chat.findByIdAndUpdate(
-                chatId,
-                {
-                    $push: { users: userId },
-                },
-                {
-                    new: true,
-                }
-            )
+            let chat = await Chat.findById(chatId)
+            if (!chat)
+                return res.status(400).json({ message: "Không tìm thấy đoạn chat!" })
+            /*if (!course.students.find(item => item.toString() === student.id.toString())) {//nếu chưa có sinh viên trên
+                course.students.push(student.id)
+            }
+            else {
+                return res.status(400).json({ message: "Học viên đã thuộc lớp học." })
+            }*/
+            if (!chat.users.find(item => item.toString() === userId.toString())) {
+                chat.users.push(userId)
+            }
+            else {
+                return res.status(400).json({ message: "Thành viên đã thuộc đoạn chat!" })
+            }
+            //     const added = await Chat.findByIdAndUpdate(
+            //     chatId,
+            //     {
+            //         $push: { users: userId },
+            //     },
+            //     {
+            //         new: true,
+            //     }
+            // )
+            //     .populate("users", "-password")
+            //     .populate("groupAdmin", "-password");
+            const added = chat.save()
                 .populate("users", "-password")
                 .populate("groupAdmin", "-password");
-
             if (!added) {
-                res.status(404);
-                throw new Error("Không tìm thấy đoạn chat");
-            } else {
-                res.json(added);
+                return res.status(400).json({ message: "Thêm thành viên thất bại!" })
             }
+            //res.json(added);
+            return res.status(200).json(added)
+
         } catch (error) {
             console.log(error)
-            return res.status(500).json({ message: "Lỗi truy cập vào chat!" })
+            return res.status(500).json({ message: "Lỗi thêm thành viên vào đoạn chat!" })
         }
     },
 }
