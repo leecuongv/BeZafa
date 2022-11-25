@@ -97,7 +97,7 @@ const ChatController = {
             if (users.length < 2) {
                 return res
                     .status(400)
-                    .send("More than 2 users are required to form a group chat");
+                    .send("Chỉ có thể tạo group chat với số lượng thành viên trên 2");
             }
 
             users.push(loginUser.id);
@@ -108,7 +108,7 @@ const ChatController = {
                 name: name,
                 users: users,
                 isGroupChat: true,
-                groupAdmin: loginUser.id,
+                groupAdmin: [loginUser.id],
             });
 
             const fullGroupChat = await Chat.findOne({ _id: groupChat._id })
@@ -149,10 +149,12 @@ const ChatController = {
                     message: "Không tìm thấy group chat!"
                 })
             }
-            if (updatedChat.groupAdmin.id !== loginUser.id)
+            if (!updatedChat.groupAdmin.find(item => item.toString() === loginUser.id.toString())) {
                 return res.status(400).json({
                     message: "Chỉ quản trị viên mới có quyền đổi tên group chat!"
                 })
+            }
+
             return res.status(200).json({
                 updatedChat
             })
@@ -178,26 +180,20 @@ const ChatController = {
             if (!user)
                 return res.status(400).json({ message: "Không có người dùng!" })
             let chat = await Chat.findById(chatId)
+
             if (!chat)
                 return res.status(400).json({ message: "Không tìm thấy đoạn chat!" })
+            if (!chat.groupAdmin.find(item => item.toString() === loginUser.id.toString())) {
+                return res.status(400).json({
+                    message: "Chỉ quản trị viên mới có quyền xóa người tham gia khỏi group chat!"
+                })
+            }
             if (chat.users.find(item => item.toString() === user.id.toString())) {
-                chat.users = chat.users.filter(item=>item.toString()!==user.id.toString())
+                chat.users = chat.users.filter(item => item.toString() !== user.id.toString())
             }
             else {
                 return res.status(400).json({ message: "Thành viên không thuộc đoạn chat!" })
             }
-            /*const removed = await Chat.findByIdAndUpdate(
-                chatId,
-                {
-                    $pull: { users: userId },
-                },
-                {
-                    new: true,
-                }
-            )
-                .populate("users", "-password")
-                .populate("groupAdmin", "-password");
-            */
             const removed = await chat.save()
             if (!removed) {
                 res.status(404).json({ message: "Không tìm thấy đoạn chat" });
@@ -221,28 +217,24 @@ const ChatController = {
 
             const { chatId, userId } = req.body;
             const user = await User.findById(userId)
+
             if (!user)
                 return res.status(400).json({ message: "Không có người dùng!" })
             let chat = await Chat.findById(chatId)
             if (!chat)
                 return res.status(400).json({ message: "Không tìm thấy đoạn chat!" })
+            if (!chat.groupAdmin.find(item => item.toString() === loginUser.id.toString())) {
+                return res.status(400).json({
+                    message: "Chỉ quản trị viên mới có quyền xóa người tham gia khỏi group chat!"
+                })
+            }
             if (!chat.users.find(item => item.toString() === user.id.toString())) {
                 chat.users.push(user.id)
             }
             else {
                 return res.status(400).json({ message: "Thành viên đã thuộc đoạn chat!" })
             }
-            //     const added = await Chat.findByIdAndUpdate(
-            //     chatId,
-            //     {
-            //         $push: { users: userId },
-            //     },
-            //     {
-            //         new: true,
-            //     }
-            // )
-            //     .populate("users", "-password")
-            //     .populate("groupAdmin", "-password");
+
             const added = await chat.save()
             if (!added) {
                 return res.status(400).json({ message: "Thêm thành viên thất bại!" })
@@ -254,5 +246,45 @@ const ChatController = {
             return res.status(500).json({ message: "Lỗi thêm thành viên vào đoạn chat!" })
         }
     },
+    addUserToGroupAdmin: async (req, res) => {
+        try {
+            const loginUsername = req.user.sub
+            if (!loginUsername)
+                return res.status(400).json({ message: "Vui lòng đăng nhập!" })
+            const loginUser = await User.findOne({ username: loginUsername })
+            if (!loginUser)
+                return res.status(400).json({ message: "Lỗi đăng nhập!" })
+
+            const { chatId, userId } = req.body;
+            const user = await User.findById(userId)
+            if (!user)
+                return res.status(400).json({ message: "Không có người dùng!" })
+            let chat = await Chat.findById(chatId)
+
+            if (!chat)
+                return res.status(400).json({ message: "Không tìm thấy đoạn chat!" })
+            if (!chat.groupAdmin.find(item => item.toString() === loginUser.id.toString())) {
+                return res.status(400).json({
+                    message: "Chỉ quản trị viên mới có quyền xóa người tham gia khỏi group chat!"
+                })
+            }
+            if (!chat.groupAdmin.find(item => item.toString() === user.id.toString())) {
+                chat.groupAdmin.push(user.id)
+            }
+            else {
+                return res.status(400).json({ message: "Thành viên đã thuộc đoạn chat!" })
+            }
+            const added = await chat.save()
+            if (!added) {
+                return res.status(400).json({ message: "Thêm thành viên thất bại!" })
+            }
+            return res.status(200).json(added)
+
+        } catch (error) {
+            console.log(error)
+            return res.status(500).json({ message: "Lỗi thêm thành viên vào đoạn chat!" })
+        }
+    },
+
 }
 module.exports = { ChatController };
