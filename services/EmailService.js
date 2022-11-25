@@ -61,7 +61,7 @@ const createTransporter = async () => {
 
 const sendMail = async (to, subject, activeLink, username) => {
     var emailOptions = { // thiết lập đối tượng, nội dung gửi mail
-        from: 'Hệ thống thi trắc nghiệm Bello Quiz',
+        from: 'Hệ thống chat',
         to: to,
         subject: subject,
         template: 'emailActive', // the name of the template file i.e email.handlebars
@@ -78,7 +78,7 @@ const sendMail = async (to, subject, activeLink, username) => {
 
 const sendMailResetPassword = async (to, subject, activeLink, username) => {
     var emailOptions = { // thiết lập đối tượng, nội dung gửi mail
-        from: '"Hệ thống thi trắc nghiệm Bello Quiz" <server10.noreply@gmail.com>',
+        from: '"Hệ thống chat" <server10.noreply@gmail.com>',
         to: to,
         subject: subject,
         template: 'resetPassword', // the name of the template file i.e email.handlebars

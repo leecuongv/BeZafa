@@ -19,10 +19,10 @@ const chatSchema = mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: COLLECTION.MESSAGE
     },
-    groupAdmin: {
+    groupAdmin: [{
       type: mongoose.Schema.Types.ObjectId,
       ref: COLLECTION.USER
-    },
+    }],
   },
   {
     timestamps: true,
