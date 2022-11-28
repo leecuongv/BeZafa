@@ -289,7 +289,7 @@ const ChatController = {
             return res.status(500).json({ message: "Lỗi thêm thành viên vào đoạn chat!" })
         }
     },
-    
+
     removeUserFromGroupAdmin: async (req, res) => {
         try {
             const loginUsername = req.user.sub
@@ -326,6 +326,49 @@ const ChatController = {
                 return res.status(400).json({ message: "Thành viên không thuộc đoạn chat!" })
             }
             const removed = await chat.save()
+            if (!removed) {
+                res.status(404).json({ message: "Không tìm thấy đoạn chat" });
+            }
+            return res.status(200).json({ removed })
+        }
+        catch (error) {
+            console.log(error)
+            return res.status(500).json({ message: "Lỗi truy cập vào chat!" })
+        }
+    },
+
+    leaveGroupChat: async (req, res) => {
+        try {
+            const loginUsername = req.user.sub
+            
+            if (!loginUsername)
+                return res.status(400).json({ message: "Vui lòng đăng nhập!" })
+            const loginUser = await User.findOne({ username: loginUsername })
+            
+            if (!loginUser)
+                return res.status(400).json({ message: "Lỗi đăng nhập!" })
+
+            const chatId = req.query.id;
+            let chat = await Chat.findById(chatId)
+
+            if (!chat)
+                return res.status(400).json({ message: "Không tìm thấy đoạn chat!" })
+
+            if (chat.users.find(item => item.toString() === loginUser.id.toString())) {
+                chat.users = chat.users.filter(item => item.toString() !== loginUser.id.toString())
+            }
+            else {
+                return res.status(400).json({ message: "Thành viên không thuộc đoạn chat!" })
+            }
+            
+            if (chat.groupAdmin.find(item => item.toString() === loginUser.id.toString())) {
+                chat.groupAdmin = chat.groupAdmin.filter(item => item.toString() !== loginUser.id.toString())
+            }
+
+            if (removed.users < 3)
+                removed.isGroupChat = false
+            const removed = await chat.save()
+            
             if (!removed) {
                 res.status(404).json({ message: "Không tìm thấy đoạn chat" });
             }
