@@ -194,7 +194,10 @@ const ChatController = {
             else {
                 return res.status(400).json({ message: "Thành viên không thuộc đoạn chat!" })
             }
+            if (removed.users < 3)
+                removed.isGroupChat = false
             const removed = await chat.save()
+
             if (!removed) {
                 res.status(404).json({ message: "Không tìm thấy đoạn chat" });
             }
@@ -246,6 +249,7 @@ const ChatController = {
             return res.status(500).json({ message: "Lỗi thêm thành viên vào đoạn chat!" })
         }
     },
+
     addUserToGroupAdmin: async (req, res) => {
         try {
             const loginUsername = req.user.sub
@@ -285,6 +289,53 @@ const ChatController = {
             return res.status(500).json({ message: "Lỗi thêm thành viên vào đoạn chat!" })
         }
     },
+    
+    removeUserFromGroupAdmin: async (req, res) => {
+        try {
+            const loginUsername = req.user.sub
+            if (!loginUsername)
+                return res.status(400).json({ message: "Vui lòng đăng nhập!" })
+            const loginUser = await User.findOne({ username: loginUsername })
+            if (!loginUser)
+                return res.status(400).json({ message: "Lỗi đăng nhập!" })
+
+            const { chatId, userId } = req.body;
+            const user = await User.findById(userId)
+
+            if (!user)
+                return res.status(400).json({ message: "Không có người dùng!" })
+            let chat = await Chat.findById(chatId)
+
+            if (!chat)
+                return res.status(400).json({ message: "Không tìm thấy đoạn chat!" })
+            if (!chat.groupAdmin.find(item => item.toString() === loginUser.id.toString())) {
+                return res.status(400).json({
+                    message: "Chỉ quản trị viên mới có quyền xóa người tham gia khỏi group chat!"
+                })
+            }
+            if (chat.groupAdmin.length < 2)
+                return res.status(400).json({
+                    message: "Cần ít nhất một quản trị viên cho đoạn chat!"
+                })
+
+            if (!chat.groupAdmin.find(item => item.toString() === user.id.toString())) {
+
+                chat.groupAdmin = chat.groupAdmin.filter(item => item.toString() !== user.id.toString())
+            }
+            else {
+                return res.status(400).json({ message: "Thành viên không thuộc đoạn chat!" })
+            }
+            const removed = await chat.save()
+            if (!removed) {
+                res.status(404).json({ message: "Không tìm thấy đoạn chat" });
+            }
+            return res.status(200).json({ removed })
+        }
+        catch (error) {
+            console.log(error)
+            return res.status(500).json({ message: "Lỗi truy cập vào chat!" })
+        }
+    }
 
 }
 module.exports = { ChatController };
