@@ -378,7 +378,8 @@ const ChatController = {
             console.log(error)
             return res.status(500).json({ message: "Lỗi truy cập vào chat!" })
         }
-    }
+    },
+    
 
 }
 module.exports = { ChatController };

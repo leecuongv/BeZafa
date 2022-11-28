@@ -26,6 +26,7 @@ const UserController = {
             const keyword = req.query.search
                 ? {
                     $or: [
+                        { phone: { $regex: req.query.search, $options: "i" } },
                         { username: { $regex: req.query.search, $options: "i" } },
                         { fullname: { $regex: req.query.search, $options: "i" } },
                         { email: { $regex: req.query.search, $options: "i" } },
