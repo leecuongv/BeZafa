@@ -9,8 +9,8 @@ const { STATUS } = require('../utils/enum')
 dotenv.config()
 // const frontendUrl = 'http://localhost:3006/'
 // const backendUrl = 'http://localhost:5000/'
-const frontendUrl = 'https://oes.vercel.app/'
-const backendUrl = 'https://be-oes.vercel.app/'
+const frontendUrl = 'https://zafa.vercel.app/'
+const backendUrl = 'https://be-zafa.vercel.app/'
 const BillController = {
     createPaymentMomo: async (req, res) => {
         try {
