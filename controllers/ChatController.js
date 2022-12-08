@@ -13,6 +13,7 @@ const ChatController = {
       console.log(loginUsername);
 
       const userId = req.body.userId;
+      console.log(userId, ":", req.user);
       const user = await User.findById(userId);
       if (!user) return res.status(400).json({ message: "Không có người dùng!" });
       var isChat = await Chat.find({
@@ -36,7 +37,7 @@ const ChatController = {
         var chatData = {
           name: "sender",
           isGroupChat: false,
-          users: [req.user._id, userId],
+          users: [loginUser._id, userId],
         };
 
         try {
@@ -59,6 +60,7 @@ const ChatController = {
 
   fetchChats: async (req, res) => {
     try {
+      console.log(req.user);
       Chat.find({ users: { $elemMatch: { $eq: req.user._id } } })
         .populate("users", "-password")
         .populate("groupAdmin", "-password")
@@ -67,7 +69,7 @@ const ChatController = {
         .then(async (results) => {
           results = await User.populate(results, {
             path: "latestMessage.sender",
-            select: "name pic email",
+            select: "username avatar email",
           });
           res.status(200).send(results);
         });
@@ -83,14 +85,12 @@ const ChatController = {
       if (!loginUsername) return res.status(400).json({ message: "Vui lòng đăng nhập!" });
       const loginUser = await User.findOne({ username: loginUsername });
       if (!loginUser) return res.status(400).json({ message: "Không có người dùng!" });
-      console.log(loginUser);
 
       const { users, name } = req.body;
 
       if (users.length < 2) {
         return res.status(400).send("Chỉ có thể tạo group chat với số lượng thành viên trên 2");
       }
-
       users.push(loginUser.id);
 
       console.log(users);

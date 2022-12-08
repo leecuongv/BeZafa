@@ -33,8 +33,7 @@ const AuthController = {
       let error = newUser.validateSync();
       if (error)
         return res.status(400).json({
-          message:
-            error.errors["email"]?.message || error.errors["username"]?.message,
+          message: error.errors["email"]?.message || error.errors["username"]?.message,
         });
 
       temp = await User.findOne({
@@ -69,19 +68,14 @@ const AuthController = {
       const user = await User.findOne({ username: username });
 
       if (!user) {
-        return res
-          .status(404)
-          .json({ username: "Sai tên đăng nhập hoặc mật khẩu" });
+        return res.status(404).json({ username: "Sai tên đăng nhập hoặc mật khẩu" });
       }
       const auth = await bcrypt.compare(password, user.password);
       if (auth) {
         if (user.status !== STATUS.ACTIVE) {
-          return res
-            .status(403)
-            .json({
-              message:
-                "Tài khoản của bạn chưa được kích hoạt. Vui lòng kiểm tra lại email kích hoạt",
-            });
+          return res.status(403).json({
+            message: "Tài khoản của bạn chưa được kích hoạt. Vui lòng kiểm tra lại email kích hoạt",
+          });
         }
         const data = {
           sub: user.username,
@@ -97,9 +91,7 @@ const AuthController = {
           refreshToken,
         });
       }
-      return res
-        .status(400)
-        .json({ message: "Sai tên đăng nhập hoặc mật khẩu" });
+      return res.status(400).json({ message: "Sai tên đăng nhập hoặc mật khẩu" });
     } catch (error) {
       console.log(error);
       return res.status(500).json({ message: "Lỗi đăng nhập" });
@@ -147,9 +139,7 @@ const AuthController = {
         const user = await User.findOne({ email: email });
         if (user) {
           if (user.status === STATUS.ACTIVE)
-            return res
-              .status(400)
-              .json({ message: "Tài khoản đã được kích hoạt" });
+            return res.status(400).json({ message: "Tài khoản đã được kích hoạt" });
           const activeCode = jwt.sign({ email }, process.env.JWT_ACCESS_KEY, {
             expiresIn: "15m",
           });
@@ -162,18 +152,13 @@ const AuthController = {
           )
             .then((response) => {
               console.log(response);
-              return res
-                .status(200)
-                .json({
-                  message:
-                    "Đã gửi mail kích hoạt. Vui lòng kiểm tra trong hộp thư của email",
-                });
+              return res.status(200).json({
+                message: "Đã gửi mail kích hoạt. Vui lòng kiểm tra trong hộp thư của email",
+              });
             })
             .catch((err) => {
               console.log(err);
-              return res
-                .status(500)
-                .json({ message: "Lỗi gửi mail kích hoạt. Vui lòng thử lại" });
+              return res.status(500).json({ message: "Lỗi gửi mail kích hoạt. Vui lòng thử lại" });
             });
         } else {
           return res.status(400).json({ message: "Tài khoản không tồn tại" });
@@ -202,9 +187,7 @@ const AuthController = {
             user.username
           )
             .then((response) => {
-              return res
-                .status(200)
-                .json({ message: "Đã gửi đường đẫn mật khẩu tới email" });
+              return res.status(200).json({ message: "Đã gửi đường đẫn mật khẩu tới email" });
             })
             .catch((err) => {
               console.log(err);
@@ -228,27 +211,17 @@ const AuthController = {
         jwt.verify(token, process.env.JWT_ACCESS_KEY, async (err, user) => {
           if (err) {
             console.log(err);
-            return res
-              .status(400)
-              .json({ message: "Mã đặt lại mật khẩu đã hết hạn" });
+            return res.status(400).json({ message: "Mã đặt lại mật khẩu đã hết hạn" });
           }
           const id = user.id;
           const salt = await bcrypt.genSalt(10);
           const hash = await bcrypt.hash(newPassword, salt);
-          const newUser = await User.findByIdAndUpdate(
-            id,
-            { password: hash },
-            { new: true }
-          );
+          const newUser = await User.findByIdAndUpdate(id, { password: hash }, { new: true });
 
           if (newUser) {
-            return res
-              .status(200)
-              .json({ message: "Đặt lại mật khẩu thành công" });
+            return res.status(200).json({ message: "Đặt lại mật khẩu thành công" });
           }
-          return res
-            .status(400)
-            .json({ message: "Đặt lại mật khẩu thành công. Vui lòng thử lại" });
+          return res.status(400).json({ message: "Đặt lại mật khẩu thành công. Vui lòng thử lại" });
         });
       } else {
         return res.status(400).json({ message: "Không có mã kích hoạt" });
@@ -280,17 +253,13 @@ const AuthController = {
             };
             const accessToken = generateAccessToken(data);
             const refreshToken = generateRefreshToken(data);
-            return res
-              .status(200)
-              .json({
-                message: "Kích hoạt thành công",
-                accessToken,
-                refreshToken,
-              });
+            return res.status(200).json({
+              message: "Kích hoạt thành công",
+              accessToken,
+              refreshToken,
+            });
           }
-          return res
-            .status(400)
-            .json({ message: "Kích hoạt không thành công" });
+          return res.status(400).json({ message: "Kích hoạt không thành công" });
         });
       } else {
         return res.status(400).json({ message: "Không có mã kích hoạt" });
@@ -307,6 +276,7 @@ const AuthController = {
       console.log(accessToken);
       jwt.verify(accessToken, process.env.JWT_ACCESS_KEY, (err, user) => {
         if (err) {
+          console.log(err.message);
           return res.status(403).json({ message: "Token không hợp lệ" });
         }
         return res.status(200).json({ message: "Hợp lệ" });
@@ -355,15 +325,11 @@ const AuthController = {
       const username = req.body.username;
       const user = await User.findOne({ username: username });
       if (user)
-        return res
-          .status(200)
-          .json({
-            message: "Tên đăng nhập đã tồn tại trong hệ thống",
-            valid: false,
-          });
-      return res
-        .status(200)
-        .json({ message: "Tên đăng nhập hợp lý", valid: true });
+        return res.status(200).json({
+          message: "Tên đăng nhập đã tồn tại trong hệ thống",
+          valid: false,
+        });
+      return res.status(200).json({ message: "Tên đăng nhập hợp lý", valid: true });
     } catch (error) {
       console.log(error);
       return res.status(500).json({ message: "Lỗi", valid: false });
@@ -377,9 +343,7 @@ const AuthController = {
         type: TYPE_ACCOUNT.NORMAL,
       });
       if (user)
-        return res
-          .status(200)
-          .json({ message: "Email đã tồn tại trong hệ thống", valid: false });
+        return res.status(200).json({ message: "Email đã tồn tại trong hệ thống", valid: false });
       return res.status(200).json({ message: "Email hợp lý", valid: true });
     } catch (error) {
       console.log(error);
