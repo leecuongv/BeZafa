@@ -29,7 +29,7 @@ const ChatController = {
 
       isChat = await User.populate(isChat, {
         path: "latestMessage.sender",
-        select: "name pic email",
+        select: "username avatar email",
       });
 
       if (isChat.length > 0) {
@@ -61,12 +61,14 @@ const ChatController = {
 
   fetchChats: async (req, res) => {
     try {
+
       console.log(req.user);
       const loginUsername = req.user.sub;
       console.log(loginUsername);
       if (!loginUsername) return res.status(400).json({ message: "Vui lòng đăng nhập!" });
       const loginUser = await User.findOne({ username: loginUsername });
       if (!loginUser) return res.status(400).json({ message: "Người dùng không tồn tại!" });
+      
       Chat.find({ users: { $elemMatch: { $eq: loginUser.id } } })
         .populate("users", "-password")
         .populate("groupAdmin", "-password")
