@@ -5,15 +5,16 @@ const User = require("../models/User");
 const ChatController = {
   create: async (req, res) => {
     try {
-      const loginUsername = req.user?.sub;
+      const loginUsername = req.user.sub;
+      console.log(loginUsername);
       if (!loginUsername) return res.status(400).json({ message: "Vui lòng đăng nhập!" });
       const loginUser = await User.findOne({ username: loginUsername });
-      if (!loginUser) return res.status(400).json({ message: "Không có người dùng!" });
+      if (!loginUser) return res.status(400).json({ message: "Người dùng không tồn tại!" });
 
-      console.log(loginUsername);
+      
 
       const userId = req.body.userId;
-      console.log(userId, ":", req.user);
+      //console.log(userId, ":", req.user);
       const user = await User.findById(userId);
       if (!user) return res.status(400).json({ message: "Không có người dùng!" });
       var isChat = await Chat.find({
@@ -61,7 +62,12 @@ const ChatController = {
   fetchChats: async (req, res) => {
     try {
       console.log(req.user);
-      Chat.find({ users: { $elemMatch: { $eq: req.user._id } } })
+      const loginUsername = req.user.sub;
+      console.log(loginUsername);
+      if (!loginUsername) return res.status(400).json({ message: "Vui lòng đăng nhập!" });
+      const loginUser = await User.findOne({ username: loginUsername });
+      if (!loginUser) return res.status(400).json({ message: "Người dùng không tồn tại!" });
+      Chat.find({ users: { $elemMatch: { $eq: loginUser.id } } })
         .populate("users", "-password")
         .populate("groupAdmin", "-password")
         .populate("latestMessage")
