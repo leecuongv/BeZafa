@@ -1,4 +1,5 @@
 const bcrypt = require("bcrypt");
+const jwt_decode = require('jwt-decode')
 const User = require("../models/User");
 const jwt = require("jsonwebtoken");
 const { sendMail, sendMailResetPassword } = require("../services/EmailService");
@@ -9,6 +10,7 @@ const {
   generateAccessToken,
   generateRefreshToken,
   generateToken,
+  generateTokenId
 } = require("../services/jwtService");
 const AuthController = {
   RegisterUser: async (req, res) => {
@@ -83,12 +85,14 @@ const AuthController = {
         };
         const accessToken = generateAccessToken(data);
         const refreshToken = generateRefreshToken(data);
+        const token = generateTokenId(user.id)
         const { password, id, status, type, ...rest } = user._doc;
 
         return res.status(200).json({
           ...rest,
           accessToken,
           refreshToken,
+          token
         });
       }
       return res.status(400).json({ message: "Sai tên đăng nhập hoặc mật khẩu" });
@@ -113,6 +117,7 @@ const AuthController = {
           const { iat, exp, ...data } = user;
           const newAccessToken = generateAccessToken(data);
           const newRefreshToken = generateRefreshToken(data);
+          const token = generateTokenId(user.id)
           console.log("refresh");
           res.cookie("token", newRefreshToken, {
             httpOnly: true,
@@ -122,6 +127,7 @@ const AuthController = {
           return res.status(200).json({
             refreshToken: newRefreshToken,
             accessToken: newAccessToken,
+            token: token
           });
         }
       });
@@ -171,13 +177,13 @@ const AuthController = {
     }
   },
 
-  Forgotpassword: async (req, res) => {
+  ForgotPassword: async (req, res) => {
     try {
       const email = req.query.email;
       if (email) {
         const user = await User.findOne({ email: email });
         if (user) {
-          const resetCode = generateToken({
+          const resetCode = generateTokenId({
             id: user.id.toString(),
           });
           sendMailResetPassword(
@@ -253,10 +259,12 @@ const AuthController = {
             };
             const accessToken = generateAccessToken(data);
             const refreshToken = generateRefreshToken(data);
+            const token = generateTokenId(newUser.id)
             return res.status(200).json({
               message: "Kích hoạt thành công",
               accessToken,
               refreshToken,
+              token
             });
           }
           return res.status(400).json({ message: "Kích hoạt không thành công" });

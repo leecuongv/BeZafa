@@ -1,17 +1,19 @@
 const Chat = require("../models/Chat");
-
+const jwt_decode = require('jwt-decode')
 const User = require("../models/User");
 
 const ChatController = {
   create: async (req, res) => {
     try {
-      const loginUsername = req.user.sub;
-      console.log(loginUsername);
-      if (!loginUsername) return res.status(400).json({ message: "Vui lòng đăng nhập!" });
-      const loginUser = await User.findOne({ username: loginUsername });
+      const token = req.headers.authorization?.split(" ")[1];
+      const decodeToken = jwt_decode(token)
+      const loginUserId = decodeToken.id
+      console.log(loginUserId);
+      if (!loginUserId) return res.status(400).json({ message: "Vui lòng đăng nhập!" });
+      const loginUser = await User.findById(loginUserId);
       if (!loginUser) return res.status(400).json({ message: "Người dùng không tồn tại!" });
 
-      
+
 
       const userId = req.body.userId;
       //console.log(userId, ":", req.user);
@@ -62,13 +64,15 @@ const ChatController = {
   fetchChats: async (req, res) => {
     try {
 
-      console.log(req.user);
-      const loginUsername = req.user.sub;
-      console.log(loginUsername);
-      if (!loginUsername) return res.status(400).json({ message: "Vui lòng đăng nhập!" });
-      const loginUser = await User.findOne({ username: loginUsername });
+      console.log("req.user \n" + req.user);
+      const token = req.headers.authorization?.split(" ")[1];
+      const decodeToken = jwt_decode(token)
+      const loginUserId = decodeToken.id
+      console.log(loginUserId);
+      if (!loginUserId) return res.status(400).json({ message: "Vui lòng đăng nhập!" });
+      const loginUser = await User.findById(loginUserId);
       if (!loginUser) return res.status(400).json({ message: "Người dùng không tồn tại!" });
-      
+
       Chat.find({ users: { $elemMatch: { $eq: loginUser.id } } })
         .populate("users", "-password")
         .populate("groupAdmin", "-password")
@@ -89,10 +93,14 @@ const ChatController = {
 
   createGroupChat: async (req, res) => {
     try {
-      const loginUsername = req.user?.sub;
-      if (!loginUsername) return res.status(400).json({ message: "Vui lòng đăng nhập!" });
-      const loginUser = await User.findOne({ username: loginUsername });
-      if (!loginUser) return res.status(400).json({ message: "Không có người dùng!" });
+      console.log(req.user);
+      const token = req.headers.authorization?.split(" ")[1];
+      const decodeToken = jwt_decode(token)
+      const loginUserId = decodeToken.id
+      console.log(loginUserId);
+      if (!loginUserId) return res.status(400).json({ message: "Vui lòng đăng nhập!" });
+      const loginUser = await User.findById(loginUserId);
+      if (!loginUser) return res.status(400).json({ message: "Người dùng không tồn tại!" });
 
       const { users, name } = req.body;
 
@@ -123,10 +131,14 @@ const ChatController = {
 
   renameGroup: async (req, res) => {
     try {
-      const loginUsername = req.user.sub;
-      if (!loginUsername) return res.status(400).json({ message: "Vui lòng đăng nhập!" });
-      const loginUser = await User.findOne({ username: loginUsername });
-      if (!loginUser) return res.status(400).json({ message: "Không có người dùng!" });
+      console.log(req.user);
+      const token = req.headers.authorization?.split(" ")[1];
+      const decodeToken = jwt_decode(token)
+      const loginUserId = decodeToken.id
+      console.log(loginUserId);
+      if (!loginUserId) return res.status(400).json({ message: "Vui lòng đăng nhập!" });
+      const loginUser = await User.findById(loginUserId);
+      if (!loginUser) return res.status(400).json({ message: "Người dùng không tồn tại!" });
 
       const { chatId, name } = req.body;
 
@@ -163,10 +175,14 @@ const ChatController = {
 
   removeUserFromGroup: async (req, res) => {
     try {
-      const loginUsername = req.user.sub;
-      if (!loginUsername) return res.status(400).json({ message: "Vui lòng đăng nhập!" });
-      const loginUser = await User.findOne({ username: loginUsername });
-      if (!loginUser) return res.status(400).json({ message: "Lỗi đăng nhập!" });
+      console.log(req.user);
+      const token = req.headers.authorization?.split(" ")[1];
+      const decodeToken = jwt_decode(token)
+      const loginUserId = decodeToken.id
+      console.log(loginUserId);
+      if (!loginUserId) return res.status(400).json({ message: "Vui lòng đăng nhập!" });
+      const loginUser = await User.findById(loginUserId);
+      if (!loginUser) return res.status(400).json({ message: "Người dùng không tồn tại!" });
 
       const { chatId, userId } = req.body;
       const user = await User.findById(userId);
@@ -200,10 +216,14 @@ const ChatController = {
 
   addUserToGroup: async (req, res) => {
     try {
-      const loginUsername = req.user.sub;
-      if (!loginUsername) return res.status(400).json({ message: "Vui lòng đăng nhập!" });
-      const loginUser = await User.findOne({ username: loginUsername });
-      if (!loginUser) return res.status(400).json({ message: "Lỗi đăng nhập!" });
+      console.log(req.user);
+      const token = req.headers.authorization?.split(" ")[1];
+      const decodeToken = jwt_decode(token)
+      const loginUserId = decodeToken.id
+      console.log(loginUserId);
+      if (!loginUserId) return res.status(400).json({ message: "Vui lòng đăng nhập!" });
+      const loginUser = await User.findById(loginUserId);
+      if (!loginUser) return res.status(400).json({ message: "Người dùng không tồn tại!" });
 
       const { chatId, userId } = req.body;
       const user = await User.findById(userId);
@@ -235,10 +255,14 @@ const ChatController = {
 
   addUserToGroupAdmin: async (req, res) => {
     try {
-      const loginUsername = req.user.sub;
-      if (!loginUsername) return res.status(400).json({ message: "Vui lòng đăng nhập!" });
-      const loginUser = await User.findOne({ username: loginUsername });
-      if (!loginUser) return res.status(400).json({ message: "Lỗi đăng nhập!" });
+      console.log(req.user);
+      const token = req.headers.authorization?.split(" ")[1];
+      const decodeToken = jwt_decode(token)
+      const loginUserId = decodeToken.id
+      console.log(loginUserId);
+      if (!loginUserId) return res.status(400).json({ message: "Vui lòng đăng nhập!" });
+      const loginUser = await User.findById(loginUserId);
+      if (!loginUser) return res.status(400).json({ message: "Người dùng không tồn tại!" });
 
       const { chatId, userId } = req.body;
       const user = await User.findById(userId);
@@ -269,10 +293,14 @@ const ChatController = {
 
   removeUserFromGroupAdmin: async (req, res) => {
     try {
-      const loginUsername = req.user.sub;
-      if (!loginUsername) return res.status(400).json({ message: "Vui lòng đăng nhập!" });
-      const loginUser = await User.findOne({ username: loginUsername });
-      if (!loginUser) return res.status(400).json({ message: "Lỗi đăng nhập!" });
+      console.log(req.user);
+      const token = req.headers.authorization?.split(" ")[1];
+      const decodeToken = jwt_decode(token)
+      const loginUserId = decodeToken.id
+      console.log(loginUserId);
+      if (!loginUserId) return res.status(400).json({ message: "Vui lòng đăng nhập!" });
+      const loginUser = await User.findById(loginUserId);
+      if (!loginUser) return res.status(400).json({ message: "Người dùng không tồn tại!" });
 
       const { chatId, userId } = req.body;
       const user = await User.findById(userId);
@@ -309,12 +337,14 @@ const ChatController = {
 
   leaveGroupChat: async (req, res) => {
     try {
-      const loginUsername = req.user.sub;
-
-      if (!loginUsername) return res.status(400).json({ message: "Vui lòng đăng nhập!" });
-      const loginUser = await User.findOne({ username: loginUsername });
-
-      if (!loginUser) return res.status(400).json({ message: "Lỗi đăng nhập!" });
+      console.log(req.user);
+      const token = req.headers.authorization?.split(" ")[1];
+      const decodeToken = jwt_decode(token)
+      const loginUserId = decodeToken.id
+      console.log(loginUserId);
+      if (!loginUserId) return res.status(400).json({ message: "Vui lòng đăng nhập!" });
+      const loginUser = await User.findById(loginUserId);
+      if (!loginUser) return res.status(400).json({ message: "Người dùng không tồn tại!" });
 
       const chatId = req.query.id;
       let chat = await Chat.findById(chatId);

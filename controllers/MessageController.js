@@ -1,17 +1,19 @@
 const Message = require("../models/Message");
 const User = require("../models/User");
+const jwt_decode = require('jwt-decode')
 const Chat = require("../models/Chat");
 
 const MessageController = {
 
     allMessages: async (req, res) => {
         try {
-            const loginUsername = req.user.sub
-            if (!loginUsername)
-                return res.status(400).json({ message: "Vui lòng đăng nhập!" })
-            const loginUser = await User.findOne({ username: loginUsername })
-            if (!loginUser)
-                return res.status(400).json({ message: "Không có người dùng!" })
+            const token = req.headers.authorization?.split(" ")[1];
+            const decodeToken = jwt_decode(token)
+            const loginUserId = decodeToken.id
+            console.log(loginUserId);
+            if (!loginUserId) return res.status(400).json({ message: "Vui lòng đăng nhập!" });
+            const loginUser = await User.findById(loginUserId);
+            if (!loginUser) return res.status(400).json({ message: "Người dùng không tồn tại!" });
 
             const messages = await Message.find({ chat: req.params.chatId })
                 .populate("sender", "username avatar email")
@@ -27,16 +29,15 @@ const MessageController = {
 
     sendMessage: async (req, res) => {
         try {
-            let loginUsername = req.user?.sub
-            console.log(loginUsername)
-            if (!loginUsername)
-                return res.status(400).json({ message: "Vui lòng đăng nhập!" })
-            let loginUser = await User.findOne({ username: loginUsername })
-            console.log(loginUser)
-            if (!loginUsername)
-                return res.status(400).json({ message: "Không có người dùng!" })
+            const token = req.headers.authorization?.split(" ")[1];
+            const decodeToken = jwt_decode(token)
+            const loginUserId = decodeToken.id
+            console.log(loginUserId);
+            if (!loginUserId) return res.status(400).json({ message: "Vui lòng đăng nhập!" });
+            const loginUser = await User.findById(loginUserId);
+            if (!loginUser) return res.status(400).json({ message: "Người dùng không tồn tại!" });
             const { content, chatId } = req.body;
-            
+
             let chat = await Chat.findById(chatId)
             if (!chat)
                 return res.status(400).json({ message: "Không tìm thấy đoạn chat!" })

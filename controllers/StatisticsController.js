@@ -1,8 +1,9 @@
 const mongoose = require("mongoose");
 const User = require("../models/User")
+const jwt_decode = require('jwt-decode')
 const { STATUS, VIEWPOINT } = require("../utils/enum");
 const moment = require("moment/moment");
-const  Bill  = require('../models/Bill')
+const Bill = require('../models/Bill')
 const StatisticController = {
     GetTotalNewUsersByDay: async (req, res) => {
         try {
@@ -66,12 +67,14 @@ const StatisticController = {
     },
     GetListBillByUser: async (req, res) => {
         try {
-            const username = req.user?.sub
-            const user = await User.findOne({ username })
-            if (!user) {
-                return res.status(400).json({ message: "Không xác định tài khoản" })
-            }
-            let listPayments = await Bill.find({ userId: user.id })
+            const token = req.headers.authorization?.split(" ")[1];
+            const decodeToken = jwt_decode(token)
+            const loginUserId = decodeToken.id
+            console.log(loginUserId);
+            if (!loginUserId) return res.status(400).json({ message: "Vui lòng đăng nhập!" });
+            const loginUser = await User.findById(loginUserId);
+            if (!loginUser) return res.status(400).json({ message: "Người dùng không tồn tại!" });
+            let listPayments = await Bill.find({ userId: loginUser.id })
 
             listPayments = listPayments.map(item => {
                 return {
@@ -125,7 +128,7 @@ const StatisticController = {
             return res.status(200).json(result)
         } catch (error) {
             console.log(error)
-            return res.status(500).json( { message: "Không xác định" })
+            return res.status(500).json({ message: "Không xác định" })
         }
     },
 }
