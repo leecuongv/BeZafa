@@ -24,4 +24,13 @@ const generateRefreshToken= (data) => {
     )
     return accessToken
 }
-module.exports = {generateAccessToken,generateRefreshToken,generateToken}
+
+const generateTokenId = (id) => {
+    JWT_KEY="secret"
+    return jwt.sign({ id }, process.env.JWT_ACCESS_KEY, {
+      expiresIn: "30d",
+    });
+  };
+
+
+module.exports = {generateAccessToken,generateRefreshToken, generateToken, generateTokenId}

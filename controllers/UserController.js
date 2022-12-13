@@ -16,12 +16,15 @@ const UserController = {
 
     searchAllUsers: async (req, res) => {
         try {
-            const loginUsername = req.user.sub
-            if (!loginUsername)
-                return res.status(400).json({ message: "Vui lòng đăng nhập!" })
-            const loginUser = await User.findOne({ username: loginUsername })
-            if (!loginUser)
-                return res.status(400).json({ message: "Không có người dùng!" })
+
+            const token = req.headers.authorization?.split(" ")[1];
+            const decodeToken = jwt_decode(token)
+            const loginUserId = decodeToken.id
+
+            if (!loginUserId) return res.status(400).json({ message: "Vui lòng đăng nhập!" });
+            const loginUser = await User.findById(loginUserId);
+            if (!loginUser) return res.status(400).json({ message: "Người dùng không tồn tại!" });
+            
 
             const keyword = req.query.search
                 ? {
@@ -48,9 +51,15 @@ const UserController = {
 
     getInfo: async (req, res) => {
         try {
-            const username = req.user.sub
-            const user = await User.findOne({ username })
-            const { password, type, id, status, ...rest } = user._doc;
+            const token = req.headers.authorization?.split(" ")[1];
+            const decodeToken = jwt_decode(token)
+            const loginUserId = decodeToken.id
+            console.log(loginUserId);
+            if (!loginUserId) return res.status(400).json({ message: "Vui lòng đăng nhập!" });
+            const loginUser = await User.findById(loginUserId);
+            if (!loginUser) return res.status(400).json({ message: "Người dùng không tồn tại!" });
+            
+            const { password, type, id, status, ...rest } = loginUser._doc;
 
             return res.status(200).json({ ...rest })
 
@@ -63,8 +72,9 @@ const UserController = {
         try {
             const token = req.headers.authorization?.split(" ")[1];
             const decodeToken = jwt_decode(token)
-            const username = decodeToken.sub
-            const user = await User.findOne({ username: username })
+            const loginUserId = decodeToken.id
+            
+            const user = await User.findById(loginUserId)
             const { password, ...doc } = user._doc;
             return res.status(200).json({ ...doc })
 
@@ -75,12 +85,15 @@ const UserController = {
     },
     updateAvatar: async (req, res) => {
         try {
-            const username = req.user.sub
-            const user = User.findOne({ username })
-
-            if (!user)
-                return res.status(400).json({ message: "Không tìm thấy tài khoản" })
+            const token = req.headers.authorization?.split(" ")[1];
+            const decodeToken = jwt_decode(token)
+            const loginUserId = decodeToken.id
+            console.log(loginUserId);
+            if (!loginUserId) return res.status(400).json({ message: "Vui lòng đăng nhập!" });
+            const loginUser = await User.findById(loginUserId);
+            if (!loginUser) return res.status(400).json({ message: "Người dùng không tồn tại!" });
             const image = req.files.file //file ảnh
+            const username = loginUser.username
             if (image) {
                 let data = image.data.toString('base64')
                 data = `data:${image.mimetype};base64,${data}`//chuyển sang data uri
@@ -106,13 +119,19 @@ const UserController = {
     },
     resetAvatar: async (req, res) => {
         try {
-            const username = req.user.sub
+            const token = req.headers.authorization?.split(" ")[1];
+            const decodeToken = jwt_decode(token)
+            const loginUserId = decodeToken.id
+            console.log(loginUserId);
+            if (!loginUserId) return res.status(400).json({ message: "Vui lòng đăng nhập!" });
+            const loginUser = await User.findById(loginUserId);
+            if (!loginUser) return res.status(400).json({ message: "Người dùng không tồn tại!" });
 
             const data = {
                 avatar: DEFAULT_VALUES.AVATAR
             }
             try {
-                const newUser = await User.findOneAndUpdate({ username }, data, { new: true })
+                const newUser = await User.findByIdAndUpdate(loginUserId, data, { new: true })
                 return res.status(200).json({ avatar: newUser.avatar })
             }
             catch (error) {
@@ -126,7 +145,13 @@ const UserController = {
     },
     updateUser: async (req, res) => {
         try {
-            const username = req.user.sub
+            const token = req.headers.authorization?.split(" ")[1];
+            const decodeToken = jwt_decode(token)
+            const loginUserId = decodeToken.id
+            console.log(loginUserId);
+            if (!loginUserId) return res.status(400).json({ message: "Vui lòng đăng nhập!" });
+            const loginUser = await User.findById(loginUserId);
+            if (!loginUser) return res.status(400).json({ message: "Người dùng không tồn tại!" });
             let { fullname, address, phone, school, birthday, gender } = req.body
             if (birthday === null || new Date(birthday).toLocaleString() === "Invalid Date") {
                 return res.status(400).json({ message: "Ngày sinh không hợp lệ" })
@@ -135,7 +160,7 @@ const UserController = {
                 fullname, address, phone, school, birthday, gender
             }
             try {
-                const newUser = await User.findOneAndUpdate({ username: username }, data, { new: true })
+                const newUser = await User.findByIdAndUpdate(loginUserId, data, { new: true })
                 const { password, ...rest } = newUser._doc
                 return res.status(200).json({ ...rest })
             }
@@ -150,10 +175,16 @@ const UserController = {
     },
     updateDeviceToken: async (req, res) => {
         try {
-            const username = req.user.sub
+            const token = req.headers.authorization?.split(" ")[1];
+            const decodeToken = jwt_decode(token)
+            const loginUserId = decodeToken.id
+            console.log(loginUserId);
+            if (!loginUserId) return res.status(400).json({ message: "Vui lòng đăng nhập!" });
+            const loginUser = await User.findById(loginUserId);
+            if (!loginUser) return res.status(400).json({ message: "Người dùng không tồn tại!" });
             const deviceToken = req.body.deviceToken
             try {
-                await User.updateOne({ username }, { deviceToken }, { strict: false })
+                await User.findByIdAndUpdate(loginUserId, { deviceToken }, { strict: false })
                 return res.status(200).json({ message: "Cập nhật device token thành công" })
             }
             catch (error) {
@@ -167,8 +198,15 @@ const UserController = {
     },
     updatePassword: async (req, res) => {
         try {
-            const username = req.user.sub
+            const token = req.headers.authorization?.split(" ")[1];
+            const decodeToken = jwt_decode(token)
+            const loginUserId = decodeToken.id
+            console.log(loginUserId);
+            if (!loginUserId) return res.status(400).json({ message: "Vui lòng đăng nhập!" });
+            const loginUser = await User.findById(loginUserId);
+            if (!loginUser) return res.status(400).json({ message: "Người dùng không tồn tại!" });
             const { password, newPassword, cfPassword } = req.body
+            const username = loginUser.username
             const salt = await bcrypt.genSalt(10);
             const hash = await bcrypt.hash(newPassword, salt);
             const data = {
@@ -193,7 +231,14 @@ const UserController = {
     },
     updateRoles: async (req, res) => {
         try {
-            const username = req.user.sub
+            const token = req.headers.authorization?.split(" ")[1];
+            const decodeToken = jwt_decode(token)
+            const loginUserId = decodeToken.id
+            console.log(loginUserId);
+            if (!loginUserId) return res.status(400).json({ message: "Vui lòng đăng nhập!" });
+            const loginUser = await User.findById(loginUserId);
+            if (!loginUser) return res.status(400).json({ message: "Người dùng không tồn tại!" });
+            const username = loginUser.username
             const user = await User.findOneAndUpdate({ username }, { role: ROLES.ADMIN }, { new: true })
             if (user) {
                 const { password, type, id, status, ...rest } = user._doc;

@@ -15,6 +15,8 @@ const {
   ChatRoutes,
   MessageRoutes,
 } = require("./routers");
+
+const { notFound, errorHandler } = require("./routers/errorMiddleware");
 const helmet = require("helmet");
 //const passport = require('passport');
 const rateLimit = require("express-rate-limit");
@@ -83,6 +85,7 @@ app.use(
   })
 );
 
+
 app.use(
   helmet.referrerPolicy({
     policy: ["no-referrer"],
@@ -123,6 +126,9 @@ app.use("/api/upload", UploadRoutes);
 app.use("/api/chat", ChatRoutes);
 app.use("/api/message", MessageRoutes);
 
+app.use(notFound);
+app.use(errorHandler);
+
 const io = require("socket.io")(server, {
   pingTimeout: 60000,
   cors: {
@@ -148,15 +154,14 @@ io.on("connection", (socket) => {
   socket.on("stop typing", (room) => socket.in(room).emit("stop typing"));
 
   socket.on("new message", (newMessageReceived) => {
-    console.error(`newMessageReceived: ${newMessageReceived.chat}`)
-    var chat = newMessageReceived.chat;
+    console.error("newMessageReceived: "+ JSON.stringify(newMessageReceived))
+    var chat = newMessageReceived;
 
-    console.log("newMessageReceived.chat   "+newMessageReceived.chat);
 
     if (!chat.users) return console.log("chat.users not defined");
 
     chat.users.forEach((user) => {
-      if (user._id == newMessageReceived.sender._id) return;
+      if (user._id == newMessageReceived.sender) return;
 
       socket.in(user._id).emit("message received", newMessageReceived);
     });

@@ -1,16 +1,22 @@
 const mongoose = require("mongoose");
 const User = require("../models/User")
+const jwt_decode = require('jwt-decode')
 const axios = require('axios');
 const FormData = require('form-data');
 const tokenBot = 'bot5684898171:AAH2OsGKaWNllMyA7QmGcleN9V3Gd78aDxU'
 const UploadController = {
     UploadImage: async (req, res) => {
         try {
-            const username = req.user.sub
-            const file = req.files.upload
 
-            const user = await User.findOne({ username })
-            if (!user) return res.status(400).json({ message: "Không có người dùng" })
+
+            const token = req.headers.authorization?.split(" ")[1];
+            const decodeToken = jwt_decode(token)
+            const loginUserId = decodeToken.id
+            console.log(loginUserId);
+            if (!loginUserId) return res.status(400).json({ message: "Vui lòng đăng nhập!" });
+            const loginUser = await User.findById(loginUserId);
+            if (!loginUser) return res.status(400).json({ message: "Người dùng không tồn tại!" });
+
             if (!file) {
                 return res.status(400).json({
                     message: 'Không có file'
@@ -20,7 +26,7 @@ const UploadController = {
             var bodyFormData = new FormData();
             bodyFormData.append('chat_id', 1668897001)
             bodyFormData.append('document', file.data, { filename: file.name })
-            
+
             axios.post(`https://api.telegram.org/${tokenBot}/sendDocument`,
                 bodyFormData,
                 {
@@ -53,11 +59,16 @@ const UploadController = {
     },
     Upload: async (req, res) => {
         try {
-            const username = req.user.sub
+            const token = req.headers.authorization?.split(" ")[1];
+            const decodeToken = jwt_decode(token)
+            const loginUserId = decodeToken.id
+            console.log(loginUserId);
+            if (!loginUserId) return res.status(400).json({ message: "Vui lòng đăng nhập!" });
+            const loginUser = await User.findById(loginUserId);
+            if (!loginUser) return res.status(400).json({ message: "Người dùng không tồn tại!" });
             const file = req.files.upload
 
-            const user = await User.findOne({ username })
-            if (!user) return res.status(400).json({ message: "Không có người dùng" })
+            
             if (!file) {
                 return res.status(400).json({
                     message: 'Không có file'
@@ -67,7 +78,7 @@ const UploadController = {
             var bodyFormData = new FormData();
             bodyFormData.append('chat_id', 1668897001)
             bodyFormData.append('document', file.data, { filename: file.name })
-            
+
             axios.post(`https://api.telegram.org/${tokenBot}/sendDocument`,
                 bodyFormData,
                 {

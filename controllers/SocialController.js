@@ -1,4 +1,5 @@
 const bcrypt = require("bcrypt")
+const jwt_decode = require('jwt-decode')
 const User  = require("../models/User.js")
 const { sendMail } = require("../services/EmailService")
 const mongoose = require("mongoose")

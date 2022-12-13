@@ -1,46 +1,43 @@
 const jwt = require("jsonwebtoken");
 const User = require('../models/User.js')
+const jwt_decode = require('jwt-decode')
 const verifyToken = (req, res, next) => {
-    const token = req.headers.authorization;
-    if (token) {
-        const accessToken = token.split(" ")[1];
-        jwt.verify(accessToken, process.env.JWT_ACCESS_KEY, (err, user) => {
-            if (err) {
-                return res.status(403).json({ message: "Token không hợp lệ" });
-            }
-            req.user = user;
-            next();
-        })
-    } else {
-        return res.status(401).json({ message: "Không có token" });
-    }
+  const token = req.headers.authorization;
+  if (token) {
+    const accessToken = token.split(" ")[1];
+    jwt.verify(accessToken, process.env.JWT_ACCESS_KEY, (err, user) => {
+      if (err) {
+        return res.status(403).json({ message: "Token không hợp lệ" });
+      }
+      req.user = user;
+      next();
+    })
+  } else {
+    return res.status(401).json({ message: "Không có token" });
+  }
 }
 
 const verifyTokenAdmin = (req, res, next) => {
-    const token = req.headers.authorization;
-    if (token) {
-        const accessToken = token.split(" ")[1];
-        jwt.verify(accessToken, process.env.JWT_ACCESS_KEY, (err, user) => {
-            if (err) {
-                return res.status(403).json({ message: "Token không hợp lệ" });
-            }
-            if (user.roles.includes("ADMIN")) {
-                req.user = user
-                next();
-            }
-            else
-                return req.status(403).json({ message: "Bạn không có quyền truy cập" })
-        })
-    } else {
-        return res.status(401).json({ message: "Không có token" });
-    }
+  const token = req.headers.authorization;
+  if (token) {
+    const accessToken = token.split(" ")[1];
+    jwt.verify(accessToken, process.env.JWT_ACCESS_KEY, (err, user) => {
+      if (err) {
+        return res.status(403).json({ message: "Token không hợp lệ" });
+      }
+      if (user.roles.includes("ADMIN")) {
+        req.user = user
+        next();
+      }
+      else
+        return req.status(403).json({ message: "Bạn không có quyền truy cập" })
+    })
+  } else {
+    return res.status(401).json({ message: "Không có token" });
+  }
 }
 
-
-
-
-
-const protect =  (req, res, next) => {
+const protect = (req, res, next) => {
   let token;
 
   if (
@@ -51,9 +48,9 @@ const protect =  (req, res, next) => {
       token = req.headers.authorization.split(" ")[1];
 
       //decodes token id
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-      req.user =  User.findById(decoded.id).select("-password");
+      const decoded = jwt.verify(token, process.env.JWT_ACCESS_KEY);
+      //console.log(process.env.JWT_ACCESS_KEY)
+      req.user = User.findById(decoded.id).select("-password");
 
       next();
     } catch (error) {
