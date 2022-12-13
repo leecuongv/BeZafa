@@ -16,7 +16,7 @@ const MessageController = {
             if (!loginUser) return res.status(400).json({ message: "Người dùng không tồn tại!" });
 
             const messages = await Message.find({ chat: req.params.chatId })
-                .populate("sender", "username avatar email")
+                .populate("sender", "username fullname avatar email")
                 .populate("chat");
             //res.json(messages);
             if (!messages)
@@ -49,10 +49,10 @@ const MessageController = {
             let message = await Message.create(newMessage);
             console.log(message)
 
-            message = await message.populate([{ path: 'sender', select: 'username avatar' }, { path: 'chat' }])
+            message = await message.populate([{ path: 'sender', select: 'username fullname avatar' }, { path: 'chat' }])
             message = await User.populate(message, {
                 path: "chat.users",
-                select: "username avatar email",
+                select: "username fullname avatar email",
             });
 
             const newChat = await Chat.findByIdAndUpdate(req.body.chatId, { latestMessage: message });
