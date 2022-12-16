@@ -34,7 +34,7 @@ mongoose.connect(URI)
         })
         adminAcc.save()
     }).catch(err => {
-        console.log('err', err)
+        console.log('err connect to DB', err)
     })
 
 

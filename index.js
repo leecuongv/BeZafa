@@ -33,27 +33,6 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true, limit: "5mb" })); //Giới hạn kích thước request gửi lên server phải nhỏ hơn 3mb
 app.use(fileupload());
 
-const limiter = rateLimit({
-  windowMs: 10 * 60 * 1000,
-  max: 50,
-});
-
-//app.use(limiter)
-const loginLimiter = rateLimit({
-  windowMs: 5 * 60 * 1000,
-  max: 3,
-});
-
-// app.use(session({
-//   secret: 'somethingsecretgoeshere',
-//   resave: false,
-//   saveUninitialized: true,
-//   cookie: { secure: true },
-// }));
-
-//app.use("/auth/login", loginLimiter);
-
-//app.use(cors({ credentials: true, origin:"https://febaomatweb.vercel.app"}));//fix lỗi cross-domain
 app.use(cors({ credentials: true, origin: true }));
 app.use(cookieParser());
 app.disable("x-powered-by"); //fix lỗi leak info from x-powered-by
@@ -102,10 +81,10 @@ app.use(function (req, res, next) {
 mongoose
   .connect(URI)
   .then(async () => {
-    console.log("Connected");
+    console.log("Connected to Mongoose");
   })
   .catch((err) => {
-    console.log("err", err);
+    console.log("err connected", err);
   });
 
 const server = app.listen(PORT, () => {
@@ -155,13 +134,13 @@ io.on("connection", (socket) => {
 
   socket.on("new message", (newMessageReceived) => {
     console.error("newMessageReceived: "+ JSON.stringify(newMessageReceived))
-    var chat = newMessageReceived;
+    var chat = newMessageReceived.chat;
 
 
-    if (!chat.users) return console.log("chat.users not defined");
+    if (!chat.users) return console.log("chat.users");
 
     chat.users.forEach((user) => {
-      if (user._id == newMessageReceived.sender) return;
+      if (user._id == newMessageReceived.sender._id) return;
 
       socket.in(user._id).emit("message received", newMessageReceived);
     });
