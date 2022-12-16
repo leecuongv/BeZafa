@@ -152,12 +152,10 @@ const UserController = {
             if (!loginUserId) return res.status(400).json({ message: "Vui lòng đăng nhập!" });
             const loginUser = await User.findById(loginUserId);
             if (!loginUser) return res.status(400).json({ message: "Người dùng không tồn tại!" });
-            let { fullname, address, phone, school, birthday, gender } = req.body
-            if (birthday === null || new Date(birthday).toLocaleString() === "Invalid Date") {
-                return res.status(400).json({ message: "Ngày sinh không hợp lệ" })
-            }
+            let { fullname} = req.body
+            
             const data = {
-                fullname, address, phone, school, birthday, gender
+                fullname
             }
             try {
                 const newUser = await User.findByIdAndUpdate(loginUserId, data, { new: true })
