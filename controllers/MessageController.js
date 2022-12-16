@@ -55,11 +55,11 @@ const MessageController = {
                 select: "username fullname avatar email",
             });
 
-            const newChat = await Chat.findByIdAndUpdate(req.body.chatId, { latestMessage: message });
+            await Chat.findByIdAndUpdate(req.body.chatId, { latestMessage: message });
 
-            if (!newChat)
+            if (!message)
                 return res.status(400).json({ message: "Gửi tin nhắn thất bại!" })
-            return res.status(200).json(newChat)
+            return res.status(200).json(message)
         }
         catch (error) {
             console.log(error)
