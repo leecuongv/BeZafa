@@ -16,7 +16,7 @@ const AdminController = {
             return res.status(400).json({ message: "Kích hoạt tài khoản thất bại" })
         }
         catch (error) {
-            console.log(error)
+            console.log("Lỗi kích hoạt tài khoản" + error)
             return res.status(500).json({ message: "Lỗi kích hoạt tài khoản" })
         }
     },
@@ -30,7 +30,7 @@ const AdminController = {
             return res.status(400).json({ message: "Hủy kích hoạt tài khoản thất bại" })
         }
         catch (error) {
-            console.log(error)
+            console.log("Lỗi hủy kích hoạt tài khoản"+error)
             return res.status(400).json({ message: "Lỗi hủy kích hoạt tài khoản" })
         }
     },
@@ -60,7 +60,7 @@ const AdminController = {
                 return res.status(400).json({ message: "Không có username" })
         }
         catch (error) {
-            console.log(error)
+            console.log("Lỗi cập nhật quyền tài khoản"+error)
             return res.status(500).json({ message: "Lỗi cập nhật quyền tài khoản" })
         }
     },
@@ -84,7 +84,7 @@ const AdminController = {
             })
         }
         catch (error) {
-            console.log(error)
+            console.log("Lỗi xóa người dùng"+ error)
             return res.status(500).json({ message: "Lỗi xóa người dùng" })
         }
     },
@@ -96,11 +96,11 @@ const AdminController = {
                     res.status(200).json(ResponseData(200, result))
                 }).
                 catch(err => {
-                    console.log(err)
+                    console.log("Lỗi lấy danh sách người dùng!"+err)
                     res.status(400).json({ message: "Lỗi lấy danh sách người dùng!" })
                 })
         } catch (error) {
-            console.log(error)
+            console.log("Lỗi lấy danh sách người dùng" + error)
             res.status(400).json({ message: "Lỗi lấy danh sách người dùng" })
         }
     },

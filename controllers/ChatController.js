@@ -8,7 +8,7 @@ const ChatController = {
       const token = req.headers.authorization?.split(" ")[1];
       const decodeToken = jwt_decode(token)
       const loginUserId = decodeToken.id
-      console.log(loginUserId);
+      //console.log(loginUserId);
       if (!loginUserId) return res.status(400).json({ message: "Vui lòng đăng nhập!" });
       const loginUser = await User.findById(loginUserId);
       if (!loginUser) return res.status(400).json({ message: "Người dùng không tồn tại!" });
@@ -22,8 +22,8 @@ const ChatController = {
       var isChat = await Chat.find({
         isGroupChat: false,
         $and: [
+          { users: { $elemMatch: { $eq: req.user._id } } },
           { users: { $elemMatch: { $eq: userId } } },
-          //{ users: { $elemMatch: { $eq: userId } } },
         ],
       })
         .populate("users", "-password")
@@ -56,7 +56,7 @@ const ChatController = {
         }
       }
     } catch (error) {
-      console.log(error.message);
+      console.log("Lỗi tìm người dùng!"+error.message);
       return res.status(500).json({ message: "Lỗi tìm người dùng!" });
     }
   },
@@ -64,11 +64,11 @@ const ChatController = {
   fetchChats: async (req, res) => {
     try {
 
-      console.log("req.user \n" + req.user);
+      //console.log("fetch chat \n" + req.user);
       const token = req.headers.authorization?.split(" ")[1];
       const decodeToken = jwt_decode(token)
       const loginUserId = decodeToken.id
-      console.log(loginUserId);
+      //console.log(loginUserId);
       if (!loginUserId) return res.status(400).json({ message: "Vui lòng đăng nhập!" });
       const loginUser = await User.findById(loginUserId);
       if (!loginUser) return res.status(400).json({ message: "Người dùng không tồn tại!" });
@@ -86,18 +86,18 @@ const ChatController = {
           res.status(200).send(results);
         });
     } catch (error) {
-      console.log(error);
+      console.log("Lỗi truy cập vào chat!"+error);
       return res.status(500).json({ message: "Lỗi truy cập vào chat!" });
     }
   },
 
   createGroupChat: async (req, res) => {
     try {
-      console.log(req.user);
+      console.log("createGroupChat"+req.user);
       const token = req.headers.authorization?.split(" ")[1];
       const decodeToken = jwt_decode(token)
       const loginUserId = decodeToken.id
-      console.log(loginUserId);
+      //console.log(loginUserId);
       if (!loginUserId) return res.status(400).json({ message: "Vui lòng đăng nhập!" });
       const loginUser = await User.findById(loginUserId);
       if (!loginUser) return res.status(400).json({ message: "Người dùng không tồn tại!" });
@@ -109,7 +109,7 @@ const ChatController = {
       }
       users.push(loginUser.id);
 
-      console.log(users);
+      //console.log(users);
 
       const groupChat = await Chat.create({
         name: name,
@@ -131,11 +131,11 @@ const ChatController = {
 
   renameGroup: async (req, res) => {
     try {
-      console.log(req.user);
+      console.log("renameGroup"+req.user);
       const token = req.headers.authorization?.split(" ")[1];
       const decodeToken = jwt_decode(token)
       const loginUserId = decodeToken.id
-      console.log(loginUserId);
+      //console.log(loginUserId);
       if (!loginUserId) return res.status(400).json({ message: "Vui lòng đăng nhập!" });
       const loginUser = await User.findById(loginUserId);
       if (!loginUser) return res.status(400).json({ message: "Người dùng không tồn tại!" });
@@ -168,7 +168,7 @@ const ChatController = {
         updatedChat,
       });
     } catch (error) {
-      console.log(error);
+      console.log("Lỗi truy cập vào chat!" +error);
       return res.status(500).json({ message: "Lỗi truy cập vào chat!" });
     }
   },

@@ -30,7 +30,7 @@ passport.use(
     async (accessToken, refreshToken, profile, done) => { 
       
       const existingUser = await User.findOne({socialId: profile.id});
-      console.log(profile)
+      //console.log(profile)
       
       if (existingUser) {
         return done(null, existingUser);

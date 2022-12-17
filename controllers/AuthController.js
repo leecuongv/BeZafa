@@ -59,7 +59,7 @@ const AuthController = {
         message: "Tạo tài khoản thành công",
       });
     } catch (error) {
-      console.log(error);
+      console.log("Lỗi tạo tài khoản" + error);
       res.status(500).json({ message: "Lỗi tạo tài khoản" });
     }
   },
@@ -97,7 +97,7 @@ const AuthController = {
       }
       return res.status(400).json({ message: "Sai tên đăng nhập hoặc mật khẩu" });
     } catch (error) {
-      console.log(error);
+      console.log("Lỗi đăng nhập"+ error);
       return res.status(500).json({ message: "Lỗi đăng nhập" });
     }
   },
@@ -111,14 +111,14 @@ const AuthController = {
 
       jwt.verify(refreshToken, process.env.JWT_ACCESS_KEY, (err, user) => {
         if (err) {
-          console.log("Lỗi:" + err);
+          console.log("Token sai" + err);
           return res.status(500).json({ message: "Token sai" });
         } else {
           const { iat, exp, ...data } = user;
           const newAccessToken = generateAccessToken(data);
           const newRefreshToken = generateRefreshToken(data);
           const token = generateTokenId(user.id)
-          console.log("refresh");
+          //console.log("refresh");
           res.cookie("token", newRefreshToken, {
             httpOnly: true,
             secure: true,
@@ -140,7 +140,7 @@ const AuthController = {
   ReActive: async (req, res) => {
     try {
       const email = req.body.email;
-      console.log(email);
+      //console.log(email);
       if (email) {
         const user = await User.findOne({ email: email });
         if (user) {
@@ -157,13 +157,13 @@ const AuthController = {
             user.username
           )
             .then((response) => {
-              console.log(response);
+              console.log("Đã gửi mail kích hoạt. Vui lòng kiểm tra trong hộp thư của email"+ response);
               return res.status(200).json({
                 message: "Đã gửi mail kích hoạt. Vui lòng kiểm tra trong hộp thư của email",
               });
             })
             .catch((err) => {
-              console.log(err);
+              console.log("Lỗi gửi mail kích hoạt. Vui lòng thử lại"+err);
               return res.status(500).json({ message: "Lỗi gửi mail kích hoạt. Vui lòng thử lại" });
             });
         } else {
@@ -196,7 +196,7 @@ const AuthController = {
               return res.status(200).json({ message: "Đã gửi đường đẫn mật khẩu tới email" });
             })
             .catch((err) => {
-              console.log(err);
+              console.log("Lỗi gửi mail"+ err);
               return res.status(500).json({ message: "Lỗi gửi mail" });
             });
         } else {
